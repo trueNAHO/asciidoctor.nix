@@ -17,6 +17,11 @@
 
       url = "github:cachix/pre-commit-hooks.nix";
     };
+
+    revealJs = {
+      flake = false;
+      url = "github:hakimel/reveal.js";
+    };
   };
 
   outputs = {
@@ -24,13 +29,17 @@
     flakeUtils,
     nixpkgs,
     preCommitHooks,
+    revealJs,
     ...
   }:
     flakeUtils.lib.eachDefaultSystem (
       system: let
-        packagesExcludingDefault =
+        packagesExcludingDefaults =
           pkgs.lib.attrsets.filterAttrs
-          (k: _: k != "default")
+          (
+            k: _:
+              k != "default" && k != "defaultExternal" && k != "defaultLocal"
+          )
           self.packages.${system};
 
         pkgs = nixpkgs.legacyPackages.${system};
@@ -39,7 +48,7 @@
           (
             pkgs.lib.attrsets.concatMapAttrs
             (k: v: {"${k}Package" = v;})
-            packagesExcludingDefault
+            packagesExcludingDefaults
           )
           // {
             preCommitHooks = preCommitHooks.lib.${system}.run {
@@ -90,10 +99,49 @@
               // extraOptions);
 
           packageName = name: "truenaho-asciidoctor-nix-${name}";
+
+          presentation = {
+            attribute,
+            name,
+            outputFile,
+          }:
+            asciidoctor {
+              inherit name outputFile;
+
+              command = "bundle exec asciidoctor-revealjs --attribute revealjsdir=${attribute}";
+
+              extraOptions.nativeBuildInputs = [
+                (
+                  pkgs.bundlerEnv
+                  {
+                    gemdir = ./.;
+                    name = packageName "bundler-env";
+                  }
+                )
+              ];
+            };
         in {
           default = pkgs.buildEnv {
             name = packageName "default";
-            paths = pkgs.lib.attrsets.attrValues packagesExcludingDefault;
+            paths = pkgs.lib.attrsets.attrValues packagesExcludingDefaults;
+          };
+
+          defaultExternal = pkgs.buildEnv {
+            name = packageName "default-external";
+            paths = pkgs.lib.attrsets.attrValues (
+              pkgs.lib.attrsets.filterAttrs
+              (k: _: k != "presentationLocal")
+              packagesExcludingDefaults
+            );
+          };
+
+          defaultLocal = pkgs.buildEnv {
+            name = packageName "default-local";
+            paths = pkgs.lib.attrsets.attrValues (
+              pkgs.lib.attrsets.filterAttrs
+              (k: _: k != "presentationExternal")
+              packagesExcludingDefaults
+            );
           };
 
           docbook = asciidoctor {
@@ -123,6 +171,18 @@
             command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
             name = "pdf";
             outputFile = "main.pdf";
+          };
+
+          presentationExternal = presentation {
+            attribute = "https://cdn.jsdelivr.net/npm/reveal.js@5.0.4";
+            name = "presentation-external";
+            outputFile = "presentation_external.html";
+          };
+
+          presentationLocal = presentation {
+            attribute = revealJs.outPath;
+            name = "presentation-local";
+            outputFile = "presentation_local.html";
           };
         };
       }

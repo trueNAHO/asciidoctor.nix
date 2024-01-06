@@ -100,11 +100,28 @@
         "type": "github"
       }
     },
+    "revealJs": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1703247486,
+        "narHash": "sha256-sVnapzYPo3UzA345JLEIGtS4BnnFEEk4nqlIpraTNwc=",
+        "owner": "hakimel",
+        "repo": "reveal.js",
+        "rev": "5ee1f729bd67e71a53057d29cb56762db8025426",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hakimel",
+        "repo": "reveal.js",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flakeUtils": "flakeUtils",
         "nixpkgs": "nixpkgs",
-        "preCommitHooks": "preCommitHooks"
+        "preCommitHooks": "preCommitHooks",
+        "revealJs": "revealJs"
       }
     },
     "systems": {

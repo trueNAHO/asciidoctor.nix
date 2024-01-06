@@ -1,4 +1,6 @@
 = asciidoctor-nix(1)
+:asciidoctor-asciidoctor-reveal-js-ruby-setup: link:https://docs.asciidoctor.org/reveal.js-converter/latest/setup/ruby-setup/
+:asciidoctor-asciidoctor-reveal-js: link:https://github.com/asciidoctor/asciidoctor-reveal.js
 :asciidoctor-asciidoctor: link:https://github.com/asciidoctor/asciidoctor
 :direnv: link:https://direnv.net
 :github-template: link:https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template
@@ -14,6 +16,7 @@
 :repository-star-history-alt: Star History Chart
 :repository-star-history-width: 100%
 :repository: link:https://github.com/trueNAHO/asciidoctor.nix
+:reveal-js: link:https://github.com/hakimel/reveal.js
 :summary: Reproducible and Deployable Asciidoctor Template
 :toc:
 
@@ -37,11 +40,12 @@ asciidoctor-nix - {summary}
 Reproducible and deployable {asciidoctor-asciidoctor}[Asciidoctor]
 {github-template}[template] based on {nixos}[Nix].
 
-The {repository-release-latest}[`latest`] release containing the <<default,
-`default`>> <<packages, package>>, the link:Gemfile.lock[] and link:gemset.nix[]
-files, and the link:flake.lock[] file are automatically updated by the
-link:.github/workflows/deploy.yml[], link:.github/workflows/bundix_lock.yml[],
-and link:.github/workflows/nix_flake_update.yml[] GitHub actions respectively.
+The {repository-release-latest}[`latest`] release containing the
+<<defaultexternal, `defaultExternal`>> <<packages, package>>, the
+link:Gemfile.lock[] and link:gemset.nix[] files, and the link:flake.lock[] file
+are automatically updated by the link:.github/workflows/deploy.yml[],
+link:.github/workflows/bundix_lock.yml[], and
+link:.github/workflows/nix_flake_update.yml[] GitHub actions respectively.
 
 == Usage
 
@@ -77,7 +81,19 @@ ____
 
 | [[default]] `default`
 a| Compiles the <<docbook, `docbook`>>, <<html, `html`>>, <<manpage,
-   `manpage`>>, and <<pdf, `pdf`>> <<packages, packages>>.
+   `manpage`>>, <<pdf, `pdf`>>, <<presentationexternal,
+   `presentationExternal`>>, and <<presentationlocal, `presentationLocal`>>
+   <<packages, packages>>.
+
+| [[defaultexternal]] `defaultExternal`
+a| Compiles the <<docbook, `docbook`>>, <<html, `html`>>, <<manpage,
+   `manpage`>>, <<pdf, `pdf`>>, and <<presentationexternal,
+   `presentationExternal`>> <<packages, packages>>.
+
+| [[defaultlocal]] `defaultLocal`
+a| Compiles the <<docbook, `docbook`>>, <<html, `html`>>, <<manpage,
+   `manpage`>>, <<pdf, `pdf`>>, and <<presentationlocal, `presentationLocal`>>
+   <<packages, packages>>.
 
 | [[docbook]] `docbook`
 a| Compiles the DocBook at `{path}/doc/main.xml`.
@@ -90,6 +106,26 @@ a| Compiles the manpage at `{path}/man/man7/main.7.gz`.
 
 | [[pdf]] `pdf`
 a| Compiles the PDF at `{path}/doc/main.pdf`.
+
+| [[presentationexternal]] `presentationExternal`
+a| Compiles the presentation at `{path}/doc/presentation_external.html`
+   {asciidoctor-asciidoctor-reveal-js-ruby-setup}[without locally installing
+   `reveal.js`]. Unlike <<presentationlocal, `presentationLocal`>>, this
+   requires an internet connection at runtime to access
+   {reveal-js}[`reveal.js`], but results in a deployable file.
+
+Due to reproducibility, link:flake.nix[the `reveal.js` URL is hard-coded]. Feel
+free to open an issue/PR to update its version.
+
+| [[presentationlocal]] `presentationLocal`
+a| Compiles the presentation at `{path}/doc/presentation_local.html` and
+   {asciidoctor-asciidoctor-reveal-js-ruby-setup}[locally installs `reveal.js`].
+   Unlike <<presentationexternal, `presentationExternal`>>, this does not
+   require an internet connection at runtime to access {reveal-js}[`reveal.js`],
+   but results in a non-deployable file.
+
+Consequently, this package should not be released without the accompanying
+{reveal-js}[`reveal.js`] installation.
 |===
 
 == Examples
@@ -105,10 +141,14 @@ To build the <<packages, packages>> directly from {repository}[upstream] using
 [,bash,subs="attributes"]
 ----
 {command-upstream}default
+{command-upstream}defaultExternal
+{command-upstream}defaultLocal
 {command-upstream}docbook
 {command-upstream}html
 {command-upstream}manpage
 {command-upstream}pdf
+{command-upstream}presentationExternal
+{command-upstream}presentationLocal
 ----
 
 To build the <<packages, packages>> from a local copy at `{command-local-path}`
@@ -117,16 +157,21 @@ using {nix}[`nix`], run one of the following commands:
 [,bash,subs="attributes"]
 ----
 {command-local}default
+{command-local}defaultExternal
+{command-local}defaultLocal
 {command-local}docbook
 {command-local}html
 {command-local}manpage
 {command-local}pdf
+{command-local}presentationExternal
+{command-local}presentationLocal
 ----
 
 == See Also
 
 {asciidoctor-asciidoctor}[Asciidoctor], link:LICENSE[License],
-{repository}[{summary}],
+{repository}[{summary}], {asciidoctor-asciidoctor-reveal-js}[Reveal.js converter
+for Asciidoctor], {reveal-js}[The HTML Presentation Framework],
 link:docs/code_of_conduct.adoc[asciidoctor-nix.code-of-conduct(7)],
 link:docs/contributing.adoc[asciidoctor-nix.contributing(7)]
 
