@@ -11,6 +11,7 @@
 :nix3-develop: link:https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-develop.html
 :nix: link:https://nixos.wiki/wiki/Nix_Installation_Guide
 :nixos: link:https://nixos.org
+:repository-commit-presentation-hash: de19b8059c410dc49e036d681749c7f8db8d609a
 :repository-path: trueNAHO/asciidoctor.nix
 :repository-star-history-align: center
 :repository-star-history-alt: Star History Chart
@@ -25,6 +26,7 @@
 :repository-star-history-src-light: https://api.star-history.com/svg?repos={repository-path}&type=Date
 :repository: link:https://github.com/{repository-path}
 
+:repository-commit-presentation-link: {repository}/commit/{repository-commit-presentation-hash}
 :repository-release-latest: {repository}/releases/latest
 
 == Name
@@ -42,10 +44,14 @@ Reproducible and deployable {asciidoctor-asciidoctor}[Asciidoctor]
 
 The {repository-release-latest}[`latest`] release containing the
 <<defaultexternal, `defaultExternal`>> <<packages, package>>, the
-link:Gemfile.lock[] and link:gemset.nix[] files, and the link:flake.lock[] file
-are automatically updated by the link:.github/workflows/deploy.yml[],
-link:.github/workflows/bundix_lock.yml[], and
-link:.github/workflows/nix_flake_update.yml[] GitHub actions respectively.
+`link:Gemfile.lock[]` and `link:gemset.nix[]` files, and the `link:flake.lock[]`
+file are automatically updated by the `link:.github/workflows/deploy.yml[]`,
+`link:.github/workflows/bundix_lock.yml[]`, and
+`link:.github/workflows/nix_flake_update.yml[]` GitHub actions respectively.
+
+If the slides are not required, feel free to revert the
+{repository-commit-presentation-link}[`{repository-commit-presentation-hash}`]
+commit to reduce install size and compile time.
 
 == Usage
 
