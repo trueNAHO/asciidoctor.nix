@@ -16,7 +16,6 @@
 :repository-star-history-align: center
 :repository-star-history-alt: Star History Chart
 :repository-star-history-width: 100%
-:repository: link:https://github.com/trueNAHO/asciidoctor.nix
 :reveal-js: link:https://github.com/hakimel/reveal.js
 :summary: Reproducible and Deployable Asciidoctor Template
 :toc:
