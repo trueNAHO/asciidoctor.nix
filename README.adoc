@@ -6,7 +6,6 @@
 :github-template: link:https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template
 :idprefix:
 :idseparator: -
-:naho: link:https://github.com/trueNAHO
 :nix-installables: link:https://nixos.org/manual/nix/stable/command-ref/new-cli/nix#installables
 :nix3-develop: link:https://nixos.org/manual/nix/stable/command-ref/new-cli/nix3-develop.html
 :nix: link:https://nixos.wiki/wiki/Nix_Installation_Guide
