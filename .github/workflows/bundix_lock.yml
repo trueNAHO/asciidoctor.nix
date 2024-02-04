@@ -22,7 +22,7 @@ jobs:
       - run: rm Gemfile.lock gemset.nix
       - run: nix develop --command bundix --lock
 
-      - uses: peter-evans/create-pull-request@v5.0.2
+      - uses: peter-evans/create-pull-request@v6.0.0
         with:
           body: >
             Automated changes by the `.github/workflows/bundix_lock.yml` GitHub
@@ -30,9 +30,5 @@ jobs:
 
           branch: update_gemfile_lock_action
           commit-message: "ci(gemfile): update all inputs"
-
-          committer: |
-            github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-
           labels: dependencies
           title: "ci(gemfile): update all inputs"
