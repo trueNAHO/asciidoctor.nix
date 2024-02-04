@@ -30,9 +30,5 @@ jobs:
 
           branch: update_gemfile_lock_action
           commit-message: "ci(gemfile): update all inputs"
-
-          committer: |
-            github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-
           labels: dependencies
           title: "ci(gemfile): update all inputs"
