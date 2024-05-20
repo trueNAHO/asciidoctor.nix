@@ -35,12 +35,9 @@
     flakeUtils.lib.eachDefaultSystem (
       system: let
         packagesExcludingDefaults =
-          pkgs.lib.attrsets.filterAttrs
-          (
-            k: _:
-              k != "default" && k != "defaultExternal" && k != "defaultLocal"
-          )
-          self.packages.${system};
+          builtins.removeAttrs
+          self.packages.${system}
+          ["default" "defaultExternal" "defaultLocal"];
 
         pkgs = nixpkgs.legacyPackages.${system};
       in {
