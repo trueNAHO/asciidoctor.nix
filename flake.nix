@@ -125,6 +125,7 @@
 
           defaultExternal = pkgs.buildEnv {
             name = packageName "default-external";
+
             paths = pkgs.lib.attrsets.attrValues (
               pkgs.lib.attrsets.filterAttrs
               (k: _: k != "presentationLocal")
@@ -134,6 +135,7 @@
 
           defaultLocal = pkgs.buildEnv {
             name = packageName "default-local";
+
             paths = pkgs.lib.attrsets.attrValues (
               pkgs.lib.attrsets.filterAttrs
               (k: _: k != "presentationExternal")
