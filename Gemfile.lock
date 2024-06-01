@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    asciidoctor (2.0.21)
+    asciidoctor (2.0.23)
     asciidoctor-revealjs (5.1.0)
       asciidoctor (>= 2.0.0, < 3.0.0)
 
@@ -13,4 +13,4 @@ DEPENDENCIES
   asciidoctor-revealjs
 
 BUNDLED WITH
-   2.5.5
+   2.5.6
