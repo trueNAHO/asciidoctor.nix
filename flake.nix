@@ -77,7 +77,7 @@
             extraOptions ? {},
             inputFile ? "main.adoc",
             name,
-            out ? "$out/share/doc",
+            out ? "${builtins.placeholder "out"}/share/doc",
             outputFile,
             src ? ./src,
           }: let
@@ -167,7 +167,11 @@
               command = "${pkgs.asciidoctor.meta.mainProgram} --backend manpage";
               extraOptions.outputs = ["out" "man"];
               name = "manpage";
-              out = "$man/share/man/man${sectionNumber}";
+
+              out = "${
+                builtins.placeholder "man"
+              }/share/man/man${sectionNumber}";
+
               outputFile = "main.${sectionNumber}";
             };
 
