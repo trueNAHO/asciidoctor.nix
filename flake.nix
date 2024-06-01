@@ -65,7 +65,10 @@
 
         devShells.default = pkgs.mkShell {
           inherit (self.checks.${system}.preCommitHooks) shellHook;
-          packages = with pkgs; [asciidoctor-with-extensions bundix];
+
+          packages = with pkgs;
+            [asciidoctor-with-extensions bundix]
+            ++ [self.checks.${system}.preCommitHooks.enabledPackages];
         };
 
         packages = let
