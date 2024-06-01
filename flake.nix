@@ -10,7 +10,6 @@
 
     preCommitHooks = {
       inputs = {
-        flake-utils.follows = "flakeUtils";
         nixpkgs-stable.follows = "preCommitHooks/nixpkgs";
         nixpkgs.follows = "nixpkgs";
       };
@@ -50,13 +49,16 @@
           // {
             preCommitHooks = preCommitHooks.lib.${system}.run {
               hooks = {
-                alejandra.enable = true;
+                alejandra = {
+                  enable = true;
+                  settings.verbosity = "quiet";
+                };
+
                 convco.enable = true;
                 typos.enable = true;
                 yamllint.enable = true;
               };
 
-              settings.alejandra.verbosity = "quiet";
               src = ./.;
             };
           };
