@@ -80,26 +80,25 @@
             out ? "${builtins.placeholder "out"}/share/doc",
             outputFile,
             src ? ./src,
-          }: let
-            outputPath = ".${out}/${outputFile}";
-          in
+          }:
             pkgs.stdenv.mkDerivation ({
                 inherit src;
 
                 buildPhase = ''
-                  ${command} --out-file "${outputPath}" "${inputFile}"
+                  ${pkgs.lib.removeSuffix "\n" command} \
+                    --attribute plantuml-format=svg \
+                    --destination-dir "${out}" \
+                    --out-file "${outputFile}" \
+                    "${inputFile}"
                 '';
 
-                installPhase = ''
-                  mkdir --parent "$out" "${out}"
-                  mv "${outputPath}" "${out}"
-                '';
-
+                installPhase = ''mkdir --parents "$out" "${out}"'';
                 name = packageName name;
                 nativeBuildInputs = [pkgs.asciidoctor-with-extensions];
               }
               // extraOptions);
 
+          asciidoctorDiagram = "--require asciidoctor-diagram";
           packageName = name: "truenaho-asciidoctor-nix-${name}";
 
           presentation = {
@@ -149,13 +148,19 @@
           };
 
           docbook = asciidoctor {
-            command = pkgs.asciidoctor.meta.mainProgram;
+            command = ''
+              ${pkgs.asciidoctor.meta.mainProgram} ${asciidoctorDiagram}
+            '';
+
             name = "docbook";
             outputFile = "main.xml";
           };
 
           html = asciidoctor {
-            command = pkgs.asciidoctor.meta.mainProgram;
+            command = ''
+              ${pkgs.asciidoctor.meta.mainProgram} ${asciidoctorDiagram}
+            '';
+
             name = "html";
             outputFile = "index.html";
           };
@@ -164,7 +169,12 @@
             sectionNumber = toString 7;
           in
             asciidoctor {
-              command = "${pkgs.asciidoctor.meta.mainProgram} --backend manpage";
+              command = ''
+                ${pkgs.asciidoctor.meta.mainProgram} \
+                  --backend manpage \
+                  ${asciidoctorDiagram}
+              '';
+
               extraOptions.outputs = ["out" "man"];
               name = "manpage";
 
@@ -176,7 +186,10 @@
             };
 
           pdf = asciidoctor {
-            command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
+            command = ''
+              ${pkgs.asciidoctor.meta.mainProgram}-pdf ${asciidoctorDiagram}
+            '';
+
             name = "pdf";
             outputFile = "main.pdf";
           };
