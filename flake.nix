@@ -109,7 +109,12 @@
             asciidoctor {
               inherit name outputFile;
 
-              command = "bundle exec asciidoctor-revealjs --attribute revealjsdir=${attribute}";
+              command = ''
+                bundle \
+                  exec \
+                  asciidoctor-revealjs \
+                  --attribute revealjsdir=${attribute}
+              '';
 
               extraOptions.nativeBuildInputs = [
                 (
