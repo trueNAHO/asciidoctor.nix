@@ -94,7 +94,11 @@
 
                 installPhase = ''mkdir --parents "$out" "${out}"'';
                 name = packageName name;
-                nativeBuildInputs = [pkgs.asciidoctor-with-extensions];
+
+                nativeBuildInputs = with pkgs; [
+                  asciidoctor-with-extensions
+                  graphviz
+                ];
               }
               // extraOptions);
 
