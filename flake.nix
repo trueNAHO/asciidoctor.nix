@@ -102,7 +102,12 @@
               }
               // extraOptions);
 
-          asciidoctorDiagram = "--require asciidoctor-diagram";
+          asciidoctorRequire =
+            pkgs.lib.concatMapStringsSep
+            " "
+            (library: "--require asciidoctor-${library}")
+            ["diagram" "mathematical"];
+
           packageName = name: "truenaho-asciidoctor-nix-${name}";
 
           presentation = {
@@ -158,7 +163,7 @@
 
           docbook = asciidoctor {
             command = ''
-              ${pkgs.asciidoctor.meta.mainProgram} ${asciidoctorDiagram}
+              ${pkgs.asciidoctor.meta.mainProgram} ${asciidoctorRequire}
             '';
 
             name = "docbook";
@@ -167,7 +172,7 @@
 
           html = asciidoctor {
             command = ''
-              ${pkgs.asciidoctor.meta.mainProgram} ${asciidoctorDiagram}
+              ${pkgs.asciidoctor.meta.mainProgram} ${asciidoctorRequire}
             '';
 
             name = "html";
@@ -181,7 +186,7 @@
               command = ''
                 ${pkgs.asciidoctor.meta.mainProgram} \
                   --backend manpage \
-                  ${asciidoctorDiagram}
+                  ${asciidoctorRequire}
               '';
 
               extraOptions.outputs = ["out" "man"];
@@ -196,7 +201,7 @@
 
           pdf = asciidoctor {
             command = ''
-              ${pkgs.asciidoctor.meta.mainProgram}-pdf ${asciidoctorDiagram}
+              ${pkgs.asciidoctor.meta.mainProgram}-pdf ${asciidoctorRequire}
             '';
 
             name = "pdf";
