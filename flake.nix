@@ -86,6 +86,7 @@
 
                 buildPhase = ''
                   ${pkgs.lib.removeSuffix "\n" command} \
+                    --attribute mathematical-format=svg \
                     --attribute plantuml-format=svg \
                     --destination-dir "${out}" \
                     --out-file "${outputFile}" \
