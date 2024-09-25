@@ -1,8 +1,10 @@
 = asciidoctor-nix.contributing(7)
+:commit-conventions: https://github.com/NixOS/nixpkgs/blob/master/CONTRIBUTING.md#commit-conventions
 :commitizen: link:http://commitizen.github.io/cz-cli
 :github-flow: link:http://scottchacon.com/2011/08/31/github-flow.html
 :idprefix:
 :idseparator: -
+:submitting-patches: https://docs.kernel.org/process/submitting-patches.html
 :toc:
 
 == Name
@@ -44,7 +46,8 @@ Adhere to the {github-flow}[GitHub Flow].
 
 === Commit Messages
 
-Follow {commitizen}[Commitizen]'s commit standards.
+Follow a combination of {submitting-patches}[Linux Kernel],
+{commit-conventions}[Nixpkgs], and {commitizen}[Commitizen] commit conventions.
 
 == See Also
 

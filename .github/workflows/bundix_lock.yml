@@ -29,6 +29,6 @@ jobs:
             Action.
 
           branch: update_gemfile_lock_action
-          commit-message: "ci(gemfile): update all inputs"
+          commit-message: "gemfile: update all inputs"
           labels: dependencies
-          title: "ci(gemfile): update all inputs"
+          title: "gemfile: update all inputs"

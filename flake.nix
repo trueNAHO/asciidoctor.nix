@@ -54,7 +54,6 @@
                   settings.verbosity = "quiet";
                 };
 
-                convco.enable = true;
                 typos.enable = true;
                 yamllint.enable = true;
               };
