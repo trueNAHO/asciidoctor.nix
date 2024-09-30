@@ -80,7 +80,7 @@
             outputFile,
             src ? ./src,
           }:
-            pkgs.stdenv.mkDerivation ({
+            pkgs.stdenvNoCC.mkDerivation ({
                 inherit src;
 
                 buildPhase = ''
