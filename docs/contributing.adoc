@@ -1,55 +1,5 @@
-= asciidoctor-nix.contributing(7)
-:commit-conventions: https://github.com/NixOS/nixpkgs/blob/master/CONTRIBUTING.md#commit-conventions
-:commitizen: link:http://commitizen.github.io/cz-cli
-:github-flow: link:http://scottchacon.com/2011/08/31/github-flow.html
-:idprefix:
-:idseparator: -
-:submitting-patches: https://docs.kernel.org/process/submitting-patches.html
-:toc:
+= Contributing
+:dotfiles: https://github.com/trueNAHO/dotfiles
 
-== Name
-
-asciidoctor-nix.contributing - Contribution Guidelines
-
-== What We Want
-
-We welcome any contributions that help improve this project. Here are some
-examples of the kinds of contributions we are looking for:
-
-* Bug reports and feature requests
-* Code improvements and bug fixes
-* Design and performance improvements
-* Documentation improvements
-* Portability and reproducibility improvements
-
-If you are uncertain about whether your contribution aligns with the scope of
-this project, please review <<what-we-do-not-want, what we do not want>>. Feel
-free to reach out to the maintainers, if you have any questions.
-
-== What We Do Not Want
-
-While we appreciate all contributions that help improve this project, some may
-not align with our vision, require further discussion, or may be better suited
-for a fork. Here are some examples that may fall into this category:
-
-* Unreproducible and undeployable modifications
-
-If you are uncertain about whether your contribution aligns with the scope of
-this project, please review <<what-we-want, what we want>>. Feel free to reach
-out to the maintainers, if you have any questions.
-
-== Contribution Guidelines
-
-=== Contribution Process
-
-Adhere to the {github-flow}[GitHub Flow].
-
-=== Commit Messages
-
-Follow a combination of {submitting-patches}[Linux Kernel],
-{commit-conventions}[Nixpkgs], and {commitizen}[Commitizen] commit conventions.
-
-== See Also
-
-link:../README.adoc[asciidoctor-nix(1)],
-link:code-of-conduct.adoc[asciidoctor-nix.code-of-conduct(7)]
+NOTE: The documentation is still a work in progress (WIP). The closest reference
+should be the documentation from {dotfiles}[].
