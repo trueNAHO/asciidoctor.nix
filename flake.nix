@@ -105,7 +105,7 @@
             (library: "--require asciidoctor-${library}")
             ["diagram" "mathematical"];
 
-          packageName = name: "truenaho-asciidoctor-nix-${name}";
+          packageName = name: "asciidoctor-nix-${name}";
 
           presentation = {
             name,
