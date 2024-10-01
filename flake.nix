@@ -112,9 +112,9 @@
           packageName = name: "truenaho-asciidoctor-nix-${name}";
 
           presentation = {
-            attribute,
             name,
             outputFile,
+            revealJsDir,
           }:
             asciidoctor {
               inherit name outputFile;
@@ -123,7 +123,7 @@
                 bundle \
                   exec \
                   asciidoctor-revealjs \
-                  --attribute revealjsdir=${attribute}
+                  --attribute revealjsdir=${revealJsDir}
               '';
 
               extraOptions.nativeBuildInputs = [
@@ -210,15 +210,15 @@
           };
 
           presentationExternal = presentation {
-            attribute = "https://cdn.jsdelivr.net/npm/reveal.js@5.0.4";
             name = "presentation-external";
             outputFile = "presentation_external.html";
+            revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.0.4";
           };
 
           presentationLocal = presentation {
-            attribute = revealJs.outPath;
             name = "presentation-local";
             outputFile = "presentation_local.html";
+            revealJsDir = revealJs.outPath;
           };
         };
       }
