@@ -39,7 +39,7 @@
         checks =
           (
             lib.attrsets.concatMapAttrs
-            (name: value: {"${name}Package" = value;})
+            (name: value: {"package-${name}" = value;})
             nonDefaultPackages
           )
           // {
