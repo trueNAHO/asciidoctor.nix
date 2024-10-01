@@ -6,16 +6,17 @@
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    pre-commit-hooks = {
+    git-hooks = {
       inputs = {
-        nixpkgs-stable.follows = "pre-commit-hooks/nixpkgs";
+        nixpkgs-stable.follows = "git-hooks/nixpkgs";
         nixpkgs.follows = "nixpkgs";
       };
 
-      url = "github:cachix/pre-commit-hooks.nix";
+      url = "github:cachix/git-hooks.nix";
     };
+
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     reveal-js = {
       flake = false;
@@ -26,8 +27,8 @@
   outputs = {
     self,
     flake-utils,
+    git-hooks,
     nixpkgs,
-    pre-commit-hooks,
     reveal-js,
     ...
   }:
@@ -47,7 +48,7 @@
             packagesExcludingDefaults
           )
           // {
-            pre-commit-hooks = pre-commit-hooks.lib.${system}.run {
+            git-hooks = git-hooks.lib.${system}.run {
               hooks = {
                 alejandra = {
                   enable = true;
@@ -63,11 +64,11 @@
           };
 
         devShells.default = pkgs.mkShell {
-          inherit (self.checks.${system}.pre-commit-hooks) shellHook;
+          inherit (self.checks.${system}.git-hooks) shellHook;
 
           packages = with pkgs;
             [asciidoctor-with-extensions bundix]
-            ++ [self.checks.${system}.pre-commit-hooks.enabledPackages];
+            ++ [self.checks.${system}.git-hooks.enabledPackages];
         };
 
         packages = let
