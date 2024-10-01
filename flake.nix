@@ -97,7 +97,10 @@
                     "${inputFile}"
                 '';
 
-                installPhase = ''mkdir --parents "$out" "${out}"'';
+                installPhase = ''
+                  mkdir --parents "$out" ${lib.escapeShellArg out}
+                '';
+
                 name = packageName name;
 
                 nativeBuildInputs = with pkgs; [
