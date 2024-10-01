@@ -24,22 +24,14 @@
     };
   };
 
-  outputs = {
-    self,
-    flake-utils,
-    git-hooks,
-    nixpkgs,
-    reveal-js,
-    ...
-  }:
-    flake-utils.lib.eachDefaultSystem (
+  outputs = inputs:
+    inputs.flake-utils.lib.eachDefaultSystem (
       system: let
-        packagesExcludingDefaults =
-          builtins.removeAttrs
-          self.packages.${system}
-          ["default" "defaultExternal" "defaultLocal"];
+        packagesExcludingDefaults = builtins.removeAttrs
+        inputs.self.packages.${system}
+        ["default" "defaultExternal" "defaultLocal"];
 
-        pkgs = nixpkgs.legacyPackages.${system};
+        pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
         checks =
           (
@@ -48,7 +40,7 @@
             packagesExcludingDefaults
           )
           // {
-            git-hooks = git-hooks.lib.${system}.run {
+            git-hooks = inputs.git-hooks.lib.${system}.run {
               hooks = {
                 alejandra = {
                   enable = true;
@@ -64,11 +56,11 @@
           };
 
         devShells.default = pkgs.mkShell {
-          inherit (self.checks.${system}.git-hooks) shellHook;
+          inherit (inputs.self.checks.${system}.git-hooks) shellHook;
 
           packages = with pkgs;
             [asciidoctor-with-extensions bundix]
-            ++ [self.checks.${system}.git-hooks.enabledPackages];
+            ++ [inputs.self.checks.${system}.git-hooks.enabledPackages];
         };
 
         packages = let
@@ -219,7 +211,7 @@
           presentationLocal = presentation {
             name = "presentation-local";
             outputFile = "presentation_local.html";
-            revealJsDir = reveal-js.outPath;
+            revealJsDir = inputs.reveal-js.outPath;
           };
         };
       }
