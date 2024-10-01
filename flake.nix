@@ -38,7 +38,7 @@
         checks =
           (
             lib.attrsets.concatMapAttrs
-            (k: v: {"${k}Package" = v;})
+            (name: value: {"${name}Package" = value;})
             packagesExcludingDefaults
           )
           // {
@@ -142,7 +142,7 @@
 
             paths = lib.attrsets.attrValues (
               lib.attrsets.filterAttrs
-              (k: _: k != "presentationLocal")
+              (name: _: name != "presentationLocal")
               packagesExcludingDefaults
             );
           };
@@ -152,7 +152,7 @@
 
             paths = lib.attrsets.attrValues (
               lib.attrsets.filterAttrs
-              (k: _: k != "presentationExternal")
+              (name: _: name != "presentationExternal")
               packagesExcludingDefaults
             );
           };
