@@ -5,19 +5,19 @@
   '';
 
   inputs = {
-    flakeUtils.url = "github:numtide/flake-utils";
+    flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    preCommitHooks = {
+    pre-commit-hooks = {
       inputs = {
-        nixpkgs-stable.follows = "preCommitHooks/nixpkgs";
+        nixpkgs-stable.follows = "pre-commit-hooks/nixpkgs";
         nixpkgs.follows = "nixpkgs";
       };
 
       url = "github:cachix/pre-commit-hooks.nix";
     };
 
-    revealJs = {
+    reveal-js = {
       flake = false;
       url = "github:hakimel/reveal.js";
     };
@@ -25,13 +25,13 @@
 
   outputs = {
     self,
-    flakeUtils,
+    flake-utils,
     nixpkgs,
-    preCommitHooks,
-    revealJs,
+    pre-commit-hooks,
+    reveal-js,
     ...
   }:
-    flakeUtils.lib.eachDefaultSystem (
+    flake-utils.lib.eachDefaultSystem (
       system: let
         packagesExcludingDefaults =
           builtins.removeAttrs
@@ -47,7 +47,7 @@
             packagesExcludingDefaults
           )
           // {
-            preCommitHooks = preCommitHooks.lib.${system}.run {
+            pre-commit-hooks = pre-commit-hooks.lib.${system}.run {
               hooks = {
                 alejandra = {
                   enable = true;
@@ -63,11 +63,11 @@
           };
 
         devShells.default = pkgs.mkShell {
-          inherit (self.checks.${system}.preCommitHooks) shellHook;
+          inherit (self.checks.${system}.pre-commit-hooks) shellHook;
 
           packages = with pkgs;
             [asciidoctor-with-extensions bundix]
-            ++ [self.checks.${system}.preCommitHooks.enabledPackages];
+            ++ [self.checks.${system}.pre-commit-hooks.enabledPackages];
         };
 
         packages = let
@@ -218,7 +218,7 @@
           presentationLocal = presentation {
             name = "presentation-local";
             outputFile = "presentation_local.html";
-            revealJsDir = revealJs.outPath;
+            revealJsDir = reveal-js.outPath;
           };
         };
       }

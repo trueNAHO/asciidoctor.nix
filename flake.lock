@@ -16,7 +16,7 @@
         "type": "github"
       }
     },
-    "flakeUtils": {
+    "flake-utils": {
       "inputs": {
         "systems": "systems"
       },
@@ -37,7 +37,7 @@
     "gitignore": {
       "inputs": {
         "nixpkgs": [
-          "preCommitHooks",
+          "pre-commit-hooks",
           "nixpkgs"
         ]
       },
@@ -71,7 +71,7 @@
         "type": "github"
       }
     },
-    "preCommitHooks": {
+    "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat",
         "gitignore": "gitignore",
@@ -79,7 +79,7 @@
           "nixpkgs"
         ],
         "nixpkgs-stable": [
-          "preCommitHooks",
+          "pre-commit-hooks",
           "nixpkgs"
         ]
       },
@@ -97,7 +97,7 @@
         "type": "github"
       }
     },
-    "revealJs": {
+    "reveal-js": {
       "flake": false,
       "locked": {
         "lastModified": 1727685694,
@@ -115,10 +115,10 @@
     },
     "root": {
       "inputs": {
-        "flakeUtils": "flakeUtils",
+        "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs",
-        "preCommitHooks": "preCommitHooks",
-        "revealJs": "revealJs"
+        "pre-commit-hooks": "pre-commit-hooks",
+        "reveal-js": "reveal-js"
       }
     },
     "systems": {
