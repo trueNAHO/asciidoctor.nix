@@ -83,7 +83,8 @@
             outputFile,
             src ? ./src,
           }:
-            pkgs.stdenvNoCC.mkDerivation ({
+            pkgs.stdenvNoCC.mkDerivation (
+              {
                 inherit src;
 
                 buildPhase = ''
@@ -104,7 +105,8 @@
                   graphviz
                 ];
               }
-              // extraOptions);
+              // extraOptions
+            );
 
           asciidoctorRequire =
             lib.concatMapStringsSep
