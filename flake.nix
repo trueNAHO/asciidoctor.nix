@@ -37,13 +37,8 @@
 
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
-        checks =
-          (
-            lib.attrsets.concatMapAttrs
-            (name: value: {"package-${name}" = value;})
-            nonDefaultPackages
-          )
-          // {
+        checks = builtins.foldl' lib.attrsets.unionOfDisjoint {} [
+          {
             git-hooks = inputs.git-hooks.lib.${system}.run {
               hooks = {
                 alejandra = {
@@ -57,7 +52,14 @@
 
               src = ./.;
             };
-          };
+          }
+
+          (
+            lib.attrsets.concatMapAttrs
+            (name: value: {"package-${name}" = value;})
+            nonDefaultPackages
+          )
+        ];
 
         devShells.default = pkgs.mkShell {
           inherit (inputs.self.checks.${system}.git-hooks) shellHook;
