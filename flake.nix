@@ -64,9 +64,11 @@
         devShells.default = pkgs.mkShell {
           inherit (inputs.self.checks.${system}.git-hooks) shellHook;
 
-          packages = with pkgs;
-            [asciidoctor-with-extensions bundix]
-            ++ [inputs.self.checks.${system}.git-hooks.enabledPackages];
+          packages = [
+            inputs.self.checks.${system}.git-hooks.enabledPackages
+            pkgs.asciidoctor-with-extensions
+            pkgs.bundix
+          ];
         };
 
         packages = let
