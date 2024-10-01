@@ -71,6 +71,8 @@
           ];
         };
 
+        formatter = pkgs.alejandra;
+
         packages = let
           asciidoctor = {
             command,
