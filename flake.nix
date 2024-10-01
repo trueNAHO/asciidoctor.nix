@@ -29,9 +29,10 @@
       system: let
         lib = pkgs.lib;
 
-        packagesExcludingDefaults = builtins.removeAttrs
-        inputs.self.packages.${system}
-        ["default" "defaultExternal" "defaultLocal"];
+        packagesExcludingDefaults =
+          lib.filterAttrs
+          (name: _: !lib.hasPrefix "default" name)
+          inputs.self.packages.${system};
 
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
@@ -142,7 +143,7 @@
 
             paths = lib.attrsets.attrValues (
               lib.attrsets.filterAttrs
-              (name: _: name != "presentationLocal")
+              (name: _: !lib.hasSuffix "Local" name)
               packagesExcludingDefaults
             );
           };
@@ -152,7 +153,7 @@
 
             paths = lib.attrsets.attrValues (
               lib.attrsets.filterAttrs
-              (name: _: name != "presentationExternal")
+              (name: _: !lib.hasSuffix "External" name)
               packagesExcludingDefaults
             );
           };
