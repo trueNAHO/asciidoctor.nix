@@ -27,6 +27,8 @@
   outputs = inputs:
     inputs.flake-utils.lib.eachDefaultSystem (
       system: let
+        lib = pkgs.lib;
+
         packagesExcludingDefaults = builtins.removeAttrs
         inputs.self.packages.${system}
         ["default" "defaultExternal" "defaultLocal"];
@@ -35,7 +37,7 @@
       in {
         checks =
           (
-            pkgs.lib.attrsets.concatMapAttrs
+            lib.attrsets.concatMapAttrs
             (k: v: {"${k}Package" = v;})
             packagesExcludingDefaults
           )
@@ -77,7 +79,7 @@
                 inherit src;
 
                 buildPhase = ''
-                  ${pkgs.lib.removeSuffix "\n" command} \
+                  ${lib.removeSuffix "\n" command} \
                     --attribute ditaa-format=svg \
                     --attribute mathematical-format=svg \
                     --attribute plantuml-format=svg \
@@ -97,7 +99,7 @@
               // extraOptions);
 
           asciidoctorRequire =
-            pkgs.lib.concatMapStringsSep
+            lib.concatMapStringsSep
             " "
             (library: "--require asciidoctor-${library}")
             ["diagram" "mathematical"];
@@ -132,14 +134,14 @@
         in {
           default = pkgs.buildEnv {
             name = packageName "default";
-            paths = pkgs.lib.attrsets.attrValues packagesExcludingDefaults;
+            paths = lib.attrsets.attrValues packagesExcludingDefaults;
           };
 
           defaultExternal = pkgs.buildEnv {
             name = packageName "default-external";
 
-            paths = pkgs.lib.attrsets.attrValues (
-              pkgs.lib.attrsets.filterAttrs
+            paths = lib.attrsets.attrValues (
+              lib.attrsets.filterAttrs
               (k: _: k != "presentationLocal")
               packagesExcludingDefaults
             );
@@ -148,8 +150,8 @@
           defaultLocal = pkgs.buildEnv {
             name = packageName "default-local";
 
-            paths = pkgs.lib.attrsets.attrValues (
-              pkgs.lib.attrsets.filterAttrs
+            paths = lib.attrsets.attrValues (
+              lib.attrsets.filterAttrs
               (k: _: k != "presentationExternal")
               packagesExcludingDefaults
             );
