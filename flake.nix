@@ -29,7 +29,7 @@
       system: let
         lib = pkgs.lib;
 
-        packagesExcludingDefaults =
+        nonDefaultPackages =
           lib.filterAttrs
           (name: _: !lib.hasPrefix "default" name)
           inputs.self.packages.${system};
@@ -40,7 +40,7 @@
           (
             lib.attrsets.concatMapAttrs
             (name: value: {"${name}Package" = value;})
-            packagesExcludingDefaults
+            nonDefaultPackages
           )
           // {
             git-hooks = inputs.git-hooks.lib.${system}.run {
@@ -135,7 +135,7 @@
         in {
           default = pkgs.buildEnv {
             name = packageName "default";
-            paths = lib.attrsets.attrValues packagesExcludingDefaults;
+            paths = lib.attrsets.attrValues nonDefaultPackages;
           };
 
           defaultExternal = pkgs.buildEnv {
@@ -144,7 +144,7 @@
             paths = lib.attrsets.attrValues (
               lib.attrsets.filterAttrs
               (name: _: !lib.hasSuffix "Local" name)
-              packagesExcludingDefaults
+              nonDefaultPackages
             );
           };
 
@@ -154,7 +154,7 @@
             paths = lib.attrsets.attrValues (
               lib.attrsets.filterAttrs
               (name: _: !lib.hasSuffix "External" name)
-              packagesExcludingDefaults
+              nonDefaultPackages
             );
           };
 
