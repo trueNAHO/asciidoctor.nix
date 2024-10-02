@@ -85,6 +85,7 @@
             src ? ./src,
           }:
             pkgs.stdenvNoCC.mkDerivation (
+              lib.attrsets.unionOfDisjoint
               {
                 inherit src;
 
@@ -93,17 +94,25 @@
                     lib.cli.toGNUCommandLineShell
                     {}
                     (
+                      lib.attrsets.unionOfDisjoint
                       {
-                        attribute = [
-                          "ditaa-format=svg"
-                          "mathematical-format=svg"
-                          "plantuml-format=svg"
-                        ];
+                        attribute = lib.flatten (
+                          [
+                            "ditaa-format=svg"
+                            "mathematical-format=svg"
+                            "plantuml-format=svg"
+                          ]
+                          ++ (
+                            lib.optional
+                            (commandOptions ? attribute)
+                            commandOptions.attribute
+                          )
+                        );
 
                         destination-dir = out;
                         out-file = outputFile;
                       }
-                      // commandOptions
+                      (builtins.removeAttrs commandOptions ["attribute"])
                     )
                   } "${inputFile}"
                 '';
@@ -114,12 +123,14 @@
 
                 name = packageName name;
 
-                nativeBuildInputs = with pkgs; [
-                  asciidoctor-with-extensions
-                  graphviz
-                ];
+                nativeBuildInputs = with pkgs;
+                  [
+                    asciidoctor-with-extensions
+                    graphviz
+                  ]
+                  ++ extraOptions.nativeBuildInputs or [];
               }
-              // extraOptions
+              (builtins.removeAttrs extraOptions ["nativeBuildInputs"])
             );
 
           asciidoctorRequire = {
@@ -202,10 +213,9 @@
               command = pkgs.asciidoctor.meta.mainProgram;
 
               commandOptions =
+                lib.attrsets.unionOfDisjoint
                 asciidoctorRequire
-                // {
-                  backend = "manpage";
-                };
+                {backend = "manpage";};
 
               extraOptions.outputs = ["out" "man"];
               name = "manpage";
