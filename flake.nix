@@ -88,13 +88,18 @@
                 inherit src;
 
                 buildPhase = ''
-                  ${lib.removeSuffix "\n" command} \
-                    --attribute ditaa-format=svg \
-                    --attribute mathematical-format=svg \
-                    --attribute plantuml-format=svg \
-                    --destination-dir "${out}" \
-                    --out-file "${outputFile}" \
-                    "${inputFile}"
+                  ${lib.removeSuffix "\n" command} ${
+                    lib.cli.toGNUCommandLineShell {} {
+                      attribute = [
+                        "ditaa-format=svg"
+                        "mathematical-format=svg"
+                        "plantuml-format=svg"
+                      ];
+
+                      destination-dir = out;
+                      out-file = outputFile;
+                    }
+                  } "${inputFile}"
                 '';
 
                 installPhase = ''
@@ -111,11 +116,12 @@
               // extraOptions
             );
 
-          asciidoctorRequire =
-            lib.concatMapStringsSep
-            " "
-            (library: "--require asciidoctor-${library}")
-            ["diagram" "mathematical"];
+          asciidoctorRequire = lib.cli.toGNUCommandLineShell {} {
+            require = map (library: "asciidoctor-${library}") [
+              "diagram"
+              "mathematical"
+            ];
+          };
 
           packageName = name: "asciidoctor-nix-${name}";
 
@@ -193,9 +199,11 @@
           in
             asciidoctor {
               command = ''
-                ${pkgs.asciidoctor.meta.mainProgram} \
-                  --backend manpage \
-                  ${asciidoctorRequire}
+                ${pkgs.asciidoctor.meta.mainProgram} ${
+                  lib.cli.toGNUCommandLineShell {} {
+                    backend = "manpage";
+                  }
+                } ${asciidoctorRequire}
               '';
 
               extraOptions.outputs = ["out" "man"];
