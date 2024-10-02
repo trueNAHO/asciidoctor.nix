@@ -89,7 +89,7 @@
                 inherit src;
 
                 buildPhase = ''
-                  ${lib.removeSuffix "\n" command} ${
+                  ${command} ${
                     lib.cli.toGNUCommandLineShell
                     {}
                     (
