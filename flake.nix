@@ -140,31 +140,27 @@
 
           packageName = name: "asciidoctor-nix-${name}";
 
-          presentation = {
-            inputFile ? "main.adoc",
-            name,
-            outputFile,
-            revealJsDir,
-          }:
-            asciidoctor {
-              inherit inputFile name outputFile;
+          presentation = {revealJsDir, ...} @ args:
+            asciidoctor (
+              {
+                command = "bundle exec asciidoctor-revealjs";
 
-              command = "bundle exec asciidoctor-revealjs";
+                commandOptions = {
+                  attribute = "revealjsdir=${revealJsDir}";
+                };
 
-              commandOptions = {
-                attribute = "revealjsdir=${revealJsDir}";
-              };
-
-              extraOptions.nativeBuildInputs = [
-                (
-                  pkgs.bundlerEnv
-                  {
-                    gemdir = ./.;
-                    name = packageName "bundler-env";
-                  }
-                )
-              ];
-            };
+                extraOptions.nativeBuildInputs = [
+                  (
+                    pkgs.bundlerEnv
+                    {
+                      gemdir = ./.;
+                      name = packageName "bundler-env";
+                    }
+                  )
+                ];
+              }
+              // (builtins.removeAttrs args ["revealJsDir"])
+            );
         in {
           default = pkgs.buildEnv {
             name = packageName "default";
