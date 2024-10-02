@@ -76,6 +76,7 @@
         packages = let
           asciidoctor = {
             command,
+            commandOptions ? {},
             extraOptions ? {},
             inputFile ? "main.adoc",
             name,
@@ -89,16 +90,21 @@
 
                 buildPhase = ''
                   ${lib.removeSuffix "\n" command} ${
-                    lib.cli.toGNUCommandLineShell {} {
-                      attribute = [
-                        "ditaa-format=svg"
-                        "mathematical-format=svg"
-                        "plantuml-format=svg"
-                      ];
+                    lib.cli.toGNUCommandLineShell
+                    {}
+                    (
+                      {
+                        attribute = [
+                          "ditaa-format=svg"
+                          "mathematical-format=svg"
+                          "plantuml-format=svg"
+                        ];
 
-                      destination-dir = out;
-                      out-file = outputFile;
-                    }
+                        destination-dir = out;
+                        out-file = outputFile;
+                      }
+                      // commandOptions
+                    )
                   } "${inputFile}"
                 '';
 
@@ -116,7 +122,7 @@
               // extraOptions
             );
 
-          asciidoctorRequire = lib.cli.toGNUCommandLineShell {} {
+          asciidoctorRequire = {
             require = map (library: "asciidoctor-${library}") [
               "diagram"
               "mathematical"
@@ -133,12 +139,11 @@
             asciidoctor {
               inherit name outputFile;
 
-              command = ''
-                bundle \
-                  exec \
-                  asciidoctor-revealjs \
-                  --attribute revealjsdir=${revealJsDir}
-              '';
+              command = "bundle exec asciidoctor-revealjs";
+
+              commandOptions = {
+                attribute = "revealjsdir=${revealJsDir}";
+              };
 
               extraOptions.nativeBuildInputs = [
                 (
@@ -177,19 +182,15 @@
           };
 
           docbook = asciidoctor {
-            command = ''
-              ${pkgs.asciidoctor.meta.mainProgram} ${asciidoctorRequire}
-            '';
-
+            command = pkgs.asciidoctor.meta.mainProgram;
+            commandOptions = asciidoctorRequire;
             name = "docbook";
             outputFile = "main.xml";
           };
 
           html = asciidoctor {
-            command = ''
-              ${pkgs.asciidoctor.meta.mainProgram} ${asciidoctorRequire}
-            '';
-
+            command = pkgs.asciidoctor.meta.mainProgram;
+            commandOptions = asciidoctorRequire;
             name = "html";
             outputFile = "index.html";
           };
@@ -198,13 +199,13 @@
             sectionNumber = toString 7;
           in
             asciidoctor {
-              command = ''
-                ${pkgs.asciidoctor.meta.mainProgram} ${
-                  lib.cli.toGNUCommandLineShell {} {
-                    backend = "manpage";
-                  }
-                } ${asciidoctorRequire}
-              '';
+              command = pkgs.asciidoctor.meta.mainProgram;
+
+              commandOptions =
+                asciidoctorRequire
+                // {
+                  backend = "manpage";
+                };
 
               extraOptions.outputs = ["out" "man"];
               name = "manpage";
@@ -217,10 +218,8 @@
             };
 
           pdf = asciidoctor {
-            command = ''
-              ${pkgs.asciidoctor.meta.mainProgram}-pdf ${asciidoctorRequire}
-            '';
-
+            command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
+            commandOptions = asciidoctorRequire;
             name = "pdf";
             outputFile = "main.pdf";
           };
