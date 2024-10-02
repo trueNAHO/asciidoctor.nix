@@ -86,6 +86,7 @@
                             "mathematical-format=svg"
                             "plantuml-format=svg"
                             "reproducible"
+                            "root=${src}"
                           ]
                           ++ (
                             lib.optional
