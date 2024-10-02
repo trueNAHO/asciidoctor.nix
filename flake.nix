@@ -101,6 +101,7 @@
                             "ditaa-format=svg"
                             "mathematical-format=svg"
                             "plantuml-format=svg"
+                            "reproducible"
                           ]
                           ++ (
                             lib.optional
