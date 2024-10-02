@@ -1,8 +1,5 @@
 {
-  description = ''
-    Reproducible and Deployable Asciidoctor Template:
-    https://github.com/trueNAHO/asciidoctor.nix
-  '';
+  description = "Reproducible and Deployable Asciidoctor Template";
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
