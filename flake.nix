@@ -141,12 +141,13 @@
           packageName = name: "asciidoctor-nix-${name}";
 
           presentation = {
+            inputFile ? "main.adoc",
             name,
             outputFile,
             revealJsDir,
           }:
             asciidoctor {
-              inherit name outputFile;
+              inherit inputFile name outputFile;
 
               command = "bundle exec asciidoctor-revealjs";
 
