@@ -26,7 +26,6 @@
     inputs.flake-utils.lib.eachDefaultSystem (
       system: let
         lib = pkgs.lib;
-
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
         checks = {
