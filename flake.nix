@@ -268,5 +268,26 @@
           };
         };
       }
+    )
+    // inputs.flake-utils.lib.eachDefaultSystemPassThrough (
+      system: let
+        lib = inputs.nixpkgs.legacyPackages.${system}.lib;
+      in {
+        templates =
+          lib.attrsets.unionOfDisjoint
+          {default = inputs.self.templates.simple;}
+          (
+            builtins.mapAttrs
+            (
+              example: _: let
+                path = lib.path.append ./examples example;
+              in {
+                inherit (import (path + "/flake.nix")) description;
+                inherit path;
+              }
+            )
+            (builtins.readDir ./examples)
+          );
+      }
     );
 }
