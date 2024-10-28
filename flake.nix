@@ -136,10 +136,7 @@
             asciidoctor (
               {
                 command = "bundle exec asciidoctor-revealjs";
-
-                commandOptions = {
-                  attribute = "revealjsdir=${revealJsDir}";
-                };
+                commandOptions.attribute = "revealjsdir=${revealJsDir}";
 
                 extraOptions.nativeBuildInputs = [
                   (
