@@ -73,6 +73,22 @@
                 inherit src;
 
                 buildPhase = ''
+                  ${
+                    lib.optionalString
+                    (
+                      builtins.elem
+                      "asciidoctor-mathematical"
+                      commandOptions.require or []
+                    )
+                    ''
+                      export FONTCONFIG_FILE="${
+                        pkgs.makeFontsConf {
+                          fontDirectories = ["${pkgs.lyx}/share/lyx/fonts"];
+                        }
+                      }"
+                    ''
+                  }
+
                   ${command} ${
                     lib.cli.toGNUCommandLineShell
                     {}
