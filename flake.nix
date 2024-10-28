@@ -236,7 +236,7 @@
               {
                 name = "presentation-external";
                 outputFile = "presentation_external.html";
-                revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.0.4";
+                revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
               }
               // args
             );
