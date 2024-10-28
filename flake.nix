@@ -138,15 +138,13 @@
                 command = "bundle exec asciidoctor-revealjs";
                 commandOptions.attribute = "revealjsdir=${revealJsDir}";
 
-                extraOptions.nativeBuildInputs = [
-                  (
-                    pkgs.bundlerEnv
-                    {
-                      gemdir = ./.;
-                      name = packageName "bundler-env";
-                    }
-                  )
-                ];
+                extraOptions.nativeBuildInputs = lib.singleton (
+                  pkgs.bundlerEnv
+                  {
+                    gemdir = ./.;
+                    name = packageName "bundler-env";
+                  }
+                );
               }
               // (builtins.removeAttrs args ["revealJsDir"])
             );
