@@ -122,7 +122,15 @@
     },
     "root": {
       "inputs": {
-        "asciidoctor-nix": "asciidoctor-nix"
+        "asciidoctor-nix": "asciidoctor-nix",
+        "flake-utils": [
+          "asciidoctor-nix",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "asciidoctor-nix",
+          "nixpkgs"
+        ]
       }
     },
     "systems": {

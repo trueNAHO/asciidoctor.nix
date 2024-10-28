@@ -1,6 +1,11 @@
 {
   description = "Simple example based on Antora's structure";
-  inputs.asciidoctor-nix.url = "path:../..";
+
+  inputs = {
+    asciidoctor-nix.url = "path:../..";
+    flake-utils.follows = "asciidoctor-nix/flake-utils";
+    nixpkgs.follows = "asciidoctor-nix/nixpkgs";
+  };
 
   outputs = inputs:
     builtins.removeAttrs inputs.asciidoctor-nix [
@@ -15,10 +20,10 @@
       "packages"
       "sourceInfo"
     ]
-    // inputs.asciidoctor-nix.inputs.flake-utils.lib.eachDefaultSystem (
+    // inputs.flake-utils.lib.eachDefaultSystem (
       system: {
         packages =
-          inputs.asciidoctor-nix.inputs.nixpkgs.legacyPackages.${system}.lib.attrsets.unionOfDisjoint
+          inputs.nixpkgs.legacyPackages.${system}.lib.attrsets.unionOfDisjoint
           (
             inputs.asciidoctor-nix.lib.${system}.packages {
               inputFile = "pages/index.adoc";
