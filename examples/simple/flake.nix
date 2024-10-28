@@ -2,7 +2,7 @@
   description = "Simple example";
 
   inputs = {
-    asciidoctor-nix.url = "path:../..";
+    asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";
     flake-utils.follows = "asciidoctor-nix/flake-utils";
     nixpkgs.follows = "asciidoctor-nix/nixpkgs";
   };
