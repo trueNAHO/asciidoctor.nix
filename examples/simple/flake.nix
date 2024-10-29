@@ -1,5 +1,5 @@
 {
-  description = "Simple example";
+  description = "Simple Asciidoctor Example";
 
   inputs = {
     asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";

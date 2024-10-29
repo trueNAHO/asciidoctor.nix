@@ -1,5 +1,5 @@
 {
-  description = "Simple example based on Antora's structure";
+  description = "Simple Asciidoctor Example Based on Antora's Structure";
 
   inputs = {
     asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";
