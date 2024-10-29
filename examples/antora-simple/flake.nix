@@ -22,15 +22,10 @@
     ]
     // inputs.flake-utils.lib.eachDefaultSystem (
       system: {
-        packages =
-          inputs.nixpkgs.legacyPackages.${system}.lib.attrsets.unionOfDisjoint
-          (
-            inputs.asciidoctor-nix.lib.${system}.packages {
-              inputFile = "pages/index.adoc";
-              src = ./src;
-            }
-          )
-          (inputs.asciidoctor-nix.packages.${system} or {});
+        packages = inputs.asciidoctor-nix.lib.${system}.packages {
+          inputFile = "pages/index.adoc";
+          src = ./src;
+        };
       }
     );
 }
