@@ -25,7 +25,7 @@
   outputs = inputs:
     inputs.flake-utils.lib.eachDefaultSystem (
       system: let
-        lib = pkgs.lib;
+        inherit (pkgs) lib;
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
         checks.git-hooks = inputs.git-hooks.lib.${system}.run {
