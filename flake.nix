@@ -101,11 +101,7 @@
                             "reproducible"
                             "root=${src}"
                           ]
-                          ++ (
-                            lib.optional
-                            (commandOptions ? attribute)
-                            commandOptions.attribute
-                          )
+                          ++ commandOptions.attribute or []
                         );
 
                         destination-dir = out;
