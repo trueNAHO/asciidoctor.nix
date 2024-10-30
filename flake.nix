@@ -28,20 +28,18 @@
         lib = pkgs.lib;
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
-        checks = {
-          git-hooks = inputs.git-hooks.lib.${system}.run {
-            hooks = {
-              alejandra = {
-                enable = true;
-                settings.verbosity = "quiet";
-              };
-
-              typos.enable = true;
-              yamllint.enable = true;
+        checks.git-hooks = inputs.git-hooks.lib.${system}.run {
+          hooks = {
+            alejandra = {
+              enable = true;
+              settings.verbosity = "quiet";
             };
 
-            src = ./.;
+            typos.enable = true;
+            yamllint.enable = true;
           };
+
+          src = ./.;
         };
 
         devShells.default = pkgs.mkShell {
