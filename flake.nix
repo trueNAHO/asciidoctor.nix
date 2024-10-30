@@ -35,6 +35,7 @@
               settings.verbosity = "quiet";
             };
 
+            deadnix.enable = true;
             typos.enable = true;
             yamllint.enable = true;
           };
