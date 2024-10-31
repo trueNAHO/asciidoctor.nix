@@ -56,213 +56,224 @@
 
         formatter = pkgs.alejandra;
 
-        lib = let
-          asciidoctor = {
-            command,
-            commandOptions ? {},
-            extraOptions ? {},
-            inputFile ? "main.adoc",
-            name,
-            out ? "${builtins.placeholder "out"}/share/doc",
-            outputFile,
-            src,
-          }:
-            pkgs.stdenvNoCC.mkDerivation (
-              lib.attrsets.unionOfDisjoint
-              {
-                inherit src;
-
-                buildPhase = ''
-                  ${
-                    lib.optionalString
-                    (
-                      builtins.elem
-                      "asciidoctor-mathematical"
-                      commandOptions.require or []
-                    )
-                    ''
-                      export FONTCONFIG_FILE="${
-                        pkgs.makeFontsConf {
-                          fontDirectories = ["${pkgs.lyx}/share/lyx/fonts"];
-                        }
-                      }"
-                    ''
-                  }
-
-                  ${command} ${
-                    lib.cli.toGNUCommandLineShell
-                    {}
-                    (
-                      lib.attrsets.unionOfDisjoint
-                      {
-                        attribute = lib.flatten (
-                          [
-                            "ditaa-format=svg"
-                            "mathematical-format=svg"
-                            "plantuml-format=svg"
-                            "reproducible"
-                            "root=${src}"
-                          ]
-                          ++ commandOptions.attribute or []
-                        );
-
-                        destination-dir = out;
-                        out-file = outputFile;
-                      }
-                      (builtins.removeAttrs commandOptions ["attribute"])
-                    )
-                  } "${inputFile}"
-                '';
-
-                installPhase = ''
-                  mkdir --parents "$out" ${lib.escapeShellArg out}
-                '';
-
-                name = packageName name;
-
-                nativeBuildInputs = with pkgs;
-                  [
-                    asciidoctor-with-extensions
-                    graphviz
-                  ]
-                  ++ extraOptions.nativeBuildInputs or [];
-              }
-              (builtins.removeAttrs extraOptions ["nativeBuildInputs"])
-            );
-
-          asciidoctorRequire = {
-            require = map (library: "asciidoctor-${library}") [
-              "diagram"
-              "mathematical"
-            ];
-          };
-
-          nonDefaultPackages = args:
-            lib.filterAttrs
-            (name: _: !lib.hasPrefix "default" name)
-            (inputs.self.lib.${system}.packages args);
-
-          packageName = name: "asciidoctor-nix-${name}";
-
-          presentation = {revealJsDir, ...} @ args:
-            asciidoctor (
-              {
-                command = "bundle exec asciidoctor-revealjs";
-                commandOptions.attribute = "revealjsdir=${revealJsDir}";
-
-                extraOptions.nativeBuildInputs = lib.singleton (
-                  pkgs.bundlerEnv
-                  {
-                    gemdir = ./.;
-                    name = packageName "bundler-env";
-                  }
-                );
-              }
-              // (builtins.removeAttrs args ["revealJsDir"])
-            );
-        in {
-          packages = args: {
-            default = pkgs.buildEnv {
-              name = packageName (args.name or "default");
-
-              paths = lib.attrsets.attrValues (
-                nonDefaultPackages (builtins.removeAttrs args ["name"])
-              );
-            };
-
-            defaultExternal = pkgs.buildEnv {
-              name = packageName (args.name or "default-external");
-
-              paths = lib.attrsets.attrValues (
-                lib.attrsets.filterAttrs
-                (name: _: !lib.hasSuffix "Local" name)
-                (nonDefaultPackages (builtins.removeAttrs args ["name"]))
-              );
-            };
-
-            defaultLocal = pkgs.buildEnv {
-              name = packageName (args.name or "default-local");
-
-              paths = lib.attrsets.attrValues (
-                lib.attrsets.filterAttrs
-                (name: _: !lib.hasSuffix "External" name)
-                (nonDefaultPackages (builtins.removeAttrs args ["name"]))
-              );
-            };
-
-            docbook = asciidoctor (
-              {
-                command = pkgs.asciidoctor.meta.mainProgram;
-                commandOptions = asciidoctorRequire;
-                name = "docbook";
-                outputFile = "main.xml";
-              }
-              // args
-            );
-
-            html = asciidoctor (
-              {
-                command = pkgs.asciidoctor.meta.mainProgram;
-                commandOptions = asciidoctorRequire;
-                name = "html";
-                outputFile = "index.html";
-              }
-              // args
-            );
-
-            manpage = let
-              sectionNumber = toString 7;
-            in
-              asciidoctor (
-                {
-                  command = pkgs.asciidoctor.meta.mainProgram;
-
-                  commandOptions =
+        mkOutputs = let
+          outputs =
+            lib.attrsets.unionOfDisjoint
+            (
+              lib.genAttrs
+              ["checks" "devShells" "formatter"]
+              (output: inputs.self.${output}.${system})
+            )
+            {
+              packages = let
+                asciidoctor = {
+                  command,
+                  commandOptions ? {},
+                  extraOptions ? {},
+                  inputFile ? "main.adoc",
+                  name,
+                  out ? "${builtins.placeholder "out"}/share/doc",
+                  outputFile,
+                  src,
+                }:
+                  pkgs.stdenvNoCC.mkDerivation (
                     lib.attrsets.unionOfDisjoint
-                    asciidoctorRequire
-                    {backend = "manpage";};
+                    {
+                      inherit src;
 
-                  extraOptions.outputs = ["out" "man"];
-                  name = "manpage";
+                      buildPhase = ''
+                        ${
+                          lib.optionalString
+                          (
+                            builtins.elem
+                            "asciidoctor-mathematical"
+                            commandOptions.require or []
+                          )
+                          ''
+                            export FONTCONFIG_FILE="${
+                              pkgs.makeFontsConf {
+                                fontDirectories = ["${pkgs.lyx}/share/lyx/fonts"];
+                              }
+                            }"
+                          ''
+                        }
 
-                  out = "${
-                    builtins.placeholder "man"
-                  }/share/man/man${sectionNumber}";
+                        ${command} ${
+                          lib.cli.toGNUCommandLineShell
+                          {}
+                          (
+                            lib.attrsets.unionOfDisjoint
+                            {
+                              attribute = lib.flatten (
+                                [
+                                  "ditaa-format=svg"
+                                  "mathematical-format=svg"
+                                  "plantuml-format=svg"
+                                  "reproducible"
+                                  "root=${src}"
+                                ]
+                                ++ commandOptions.attribute or []
+                              );
 
-                  outputFile = "main.${sectionNumber}";
-                }
-                // args
-              );
+                              destination-dir = out;
+                              out-file = outputFile;
+                            }
+                            (builtins.removeAttrs commandOptions ["attribute"])
+                          )
+                        } "${inputFile}"
+                      '';
 
-            pdf = asciidoctor (
-              {
-                command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
-                commandOptions = asciidoctorRequire;
-                name = "pdf";
-                outputFile = "main.pdf";
-              }
-              // args
-            );
+                      installPhase = ''
+                        mkdir --parents "$out" ${lib.escapeShellArg out}
+                      '';
 
-            presentationExternal = presentation (
-              {
-                name = "presentation-external";
-                outputFile = "presentation_external.html";
-                revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
-              }
-              // args
-            );
+                      name = packageName name;
 
-            presentationLocal = presentation (
-              {
-                name = "presentation-local";
-                outputFile = "presentation_local.html";
-                revealJsDir = inputs.reveal-js.outPath;
-              }
-              // args
-            );
-          };
-        };
+                      nativeBuildInputs = with pkgs;
+                        [
+                          asciidoctor-with-extensions
+                          graphviz
+                        ]
+                        ++ extraOptions.nativeBuildInputs or [];
+                    }
+                    (builtins.removeAttrs extraOptions ["nativeBuildInputs"])
+                  );
+
+                asciidoctorRequire = {
+                  require = map (library: "asciidoctor-${library}") [
+                    "diagram"
+                    "mathematical"
+                  ];
+                };
+
+                nonDefaultPackages = args:
+                  lib.filterAttrs
+                  (name: _: !lib.hasPrefix "default" name)
+                  (inputs.self.lib.${system}.packages args);
+
+                packageName = name: "asciidoctor-nix-${name}";
+
+                presentation = {revealJsDir, ...} @ args:
+                  asciidoctor (
+                    {
+                      command = "bundle exec asciidoctor-revealjs";
+                      commandOptions.attribute = "revealjsdir=${revealJsDir}";
+
+                      extraOptions.nativeBuildInputs = lib.singleton (
+                        pkgs.bundlerEnv
+                        {
+                          gemdir = ./.;
+                          name = packageName "bundler-env";
+                        }
+                      );
+                    }
+                    // (builtins.removeAttrs args ["revealJsDir"])
+                  );
+              in
+                args: {
+                  default = pkgs.buildEnv {
+                    name = packageName (args.name or "default");
+
+                    paths = lib.attrsets.attrValues (
+                      nonDefaultPackages (builtins.removeAttrs args ["name"])
+                    );
+                  };
+
+                  defaultExternal = pkgs.buildEnv {
+                    name = packageName (args.name or "default-external");
+
+                    paths = lib.attrsets.attrValues (
+                      lib.attrsets.filterAttrs
+                      (name: _: !lib.hasSuffix "Local" name)
+                      (nonDefaultPackages (builtins.removeAttrs args ["name"]))
+                    );
+                  };
+
+                  defaultLocal = pkgs.buildEnv {
+                    name = packageName (args.name or "default-local");
+
+                    paths = lib.attrsets.attrValues (
+                      lib.attrsets.filterAttrs
+                      (name: _: !lib.hasSuffix "External" name)
+                      (nonDefaultPackages (builtins.removeAttrs args ["name"]))
+                    );
+                  };
+
+                  docbook = asciidoctor (
+                    {
+                      command = pkgs.asciidoctor.meta.mainProgram;
+                      commandOptions = asciidoctorRequire;
+                      name = "docbook";
+                      outputFile = "main.xml";
+                    }
+                    // args
+                  );
+
+                  html = asciidoctor (
+                    {
+                      command = pkgs.asciidoctor.meta.mainProgram;
+                      commandOptions = asciidoctorRequire;
+                      name = "html";
+                      outputFile = "index.html";
+                    }
+                    // args
+                  );
+
+                  manpage = let
+                    sectionNumber = toString 7;
+                  in
+                    asciidoctor (
+                      {
+                        command = pkgs.asciidoctor.meta.mainProgram;
+
+                        commandOptions =
+                          lib.attrsets.unionOfDisjoint
+                          asciidoctorRequire
+                          {backend = "manpage";};
+
+                        extraOptions.outputs = ["out" "man"];
+                        name = "manpage";
+
+                        out = "${
+                          builtins.placeholder "man"
+                        }/share/man/man${sectionNumber}";
+
+                        outputFile = "main.${sectionNumber}";
+                      }
+                      // args
+                    );
+
+                  pdf = asciidoctor (
+                    {
+                      command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
+                      commandOptions = asciidoctorRequire;
+                      name = "pdf";
+                      outputFile = "main.pdf";
+                    }
+                    // args
+                  );
+
+                  presentationExternal = presentation (
+                    {
+                      name = "presentation-external";
+                      outputFile = "presentation_external.html";
+                      revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                    }
+                    // args
+                  );
+
+                  presentationLocal = presentation (
+                    {
+                      name = "presentation-local";
+                      outputFile = "presentation_local.html";
+                      revealJsDir = inputs.reveal-js.outPath;
+                    }
+                    // args
+                  );
+                };
+            };
+        in
+          extraConfig: outputs // extraConfig outputs;
       }
     )
     // inputs.flake-utils.lib.eachDefaultSystemPassThrough (

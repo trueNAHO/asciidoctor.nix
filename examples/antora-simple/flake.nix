@@ -8,24 +8,15 @@
   };
 
   outputs = inputs:
-    builtins.removeAttrs inputs.asciidoctor-nix [
-      "_type"
-      "inputs"
-      "lastModified"
-      "lastModifiedDate"
-      "lib"
-      "narHash"
-      "outPath"
-      "outputs"
-      "packages"
-      "sourceInfo"
-    ]
-    // inputs.flake-utils.lib.eachDefaultSystem (
-      system: {
-        packages = inputs.asciidoctor-nix.lib.${system}.packages {
-          inputFile = "pages/index.adoc";
-          src = ./src;
-        };
-      }
+    inputs.flake-utils.lib.eachDefaultSystem (
+      system:
+        inputs.asciidoctor-nix.mkOutputs.${system} (
+          parent: {
+            packages = parent.packages {
+              inputFile = "pages/index.adoc";
+              src = ./src;
+            };
+          }
+        )
     );
 }
