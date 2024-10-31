@@ -78,6 +78,7 @@
                 }:
                   pkgs.stdenvNoCC.mkDerivation (
                     lib.attrsets.unionOfDisjoint
+                    (builtins.removeAttrs extraOptions ["nativeBuildInputs"])
                     {
                       inherit src;
 
@@ -103,6 +104,7 @@
                           {}
                           (
                             lib.attrsets.unionOfDisjoint
+                            (builtins.removeAttrs commandOptions ["attribute"])
                             {
                               attribute = lib.flatten (
                                 [
@@ -118,7 +120,6 @@
                               destination-dir = out;
                               out-file = outputFile;
                             }
-                            (builtins.removeAttrs commandOptions ["attribute"])
                           )
                         } "${inputFile}"
                       '';
@@ -136,7 +137,6 @@
                         ]
                         ++ extraOptions.nativeBuildInputs or [];
                     }
-                    (builtins.removeAttrs extraOptions ["nativeBuildInputs"])
                   );
 
                 asciidoctorRequire = {
