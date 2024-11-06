@@ -160,8 +160,7 @@
                       commandOptions.attribute = "revealjsdir=${revealJsDir}";
 
                       extraOptions.nativeBuildInputs = lib.singleton (
-                        pkgs.bundlerEnv
-                        {
+                        pkgs.bundlerEnv {
                           gemdir = ./.;
                           name = packageName "bundler-env";
                         }
