@@ -278,59 +278,22 @@
     )
     // inputs.flake-utils.lib.eachDefaultSystemPassThrough (
       system: let
-        inherit (pkgs) lib;
-        pkgs = inputs.nixpkgs.legacyPackages.${system};
+        inherit (inputs.nixpkgs.legacyPackages.${system}) lib;
       in {
         templates =
           lib.attrsets.unionOfDisjoint
           {default = inputs.self.templates.simple;}
           (
-            let
-              examples = ./examples;
-            in
-              builtins.mapAttrs
-              (
-                example: _: {
-                  inherit
-                    (import (lib.path.append examples "${example}/flake.nix"))
-                    description
-                    ;
-
-                  path =
-                    (
-                      pkgs.stdenvNoCC.mkDerivation {
-                        installPhase = ''
-                          mkdir --parents "$out"
-                          cp --recursive . "$out"
-                        '';
-
-                        name = example;
-
-                        postPatch =
-                          lib.concatMapStringsSep
-                          ";"
-                          (
-                            file: "install -D ${file} ${
-                              lib.path.removePrefix ./. file
-                            }"
-                          )
-                          [
-                            ./.envrc
-                            ./.github/dependabot.yml
-                            ./.github/workflows/nix_flake_check.yml
-                            ./.github/workflows/nix_flake_update.yml
-                            ./.gitignore
-                            ./LICENSE
-                            ./README.adoc
-                          ];
-
-                        src = lib.path.append examples example;
-                      }
-                    )
-                    .outPath;
-                }
-              )
-              (builtins.readDir examples)
+            builtins.mapAttrs
+            (
+              example: _: let
+                path = lib.path.append ./examples example;
+              in {
+                inherit (import (path + "/flake.nix")) description;
+                inherit path;
+              }
+            )
+            (builtins.readDir ./examples)
           );
       }
     );
