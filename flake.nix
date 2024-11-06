@@ -284,16 +284,23 @@
           lib.attrsets.unionOfDisjoint
           {default = inputs.self.templates.simple;}
           (
-            builtins.mapAttrs
-            (
-              example: _: let
-                path = lib.path.append ./examples example;
-              in {
-                inherit (import (lib.path.append path "flake.nix")) description;
-                inherit path;
-              }
-            )
-            (builtins.readDir ./examples)
+            let
+              examples = ./examples;
+            in
+              builtins.mapAttrs
+              (
+                example: _: let
+                  path = lib.path.append examples example;
+                in {
+                  inherit
+                    (import (lib.path.append path "flake.nix"))
+                    description
+                    ;
+
+                  inherit path;
+                }
+              )
+              (builtins.readDir examples)
           );
       }
     );
