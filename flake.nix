@@ -289,7 +289,7 @@
               example: _: let
                 path = lib.path.append ./examples example;
               in {
-                inherit (import (path + "/flake.nix")) description;
+                inherit (import (lib.path.append path "flake.nix")) description;
                 inherit path;
               }
             )
