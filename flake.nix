@@ -169,7 +169,7 @@
                           nonDefaultPackages = args:
                             lib.filterAttrs
                             (name: _: !lib.hasPrefix "default" name)
-                            (self args);
+                            (self (builtins.removeAttrs args ["name"]));
 
                           packageName = name: "asciidoctor-nix-${name}";
 
@@ -197,9 +197,7 @@
                               name = packageName (args.name or "default");
 
                               paths = lib.attrsets.attrValues (
-                                nonDefaultPackages (
-                                  builtins.removeAttrs args ["name"]
-                                )
+                                nonDefaultPackages args
                               );
                             };
 
@@ -211,10 +209,7 @@
                               paths = lib.attrsets.attrValues (
                                 lib.attrsets.filterAttrs
                                 (name: _: !lib.hasSuffix "Local" name)
-                                (
-                                  nonDefaultPackages
-                                  (builtins.removeAttrs args ["name"])
-                                )
+                                (nonDefaultPackages args)
                               );
                             };
 
@@ -224,10 +219,7 @@
                               paths = lib.attrsets.attrValues (
                                 lib.attrsets.filterAttrs
                                 (name: _: !lib.hasSuffix "External" name)
-                                (
-                                  nonDefaultPackages
-                                  (builtins.removeAttrs args ["name"])
-                                )
+                                (nonDefaultPackages args)
                               );
                             };
 
