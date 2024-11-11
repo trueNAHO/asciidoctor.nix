@@ -1,17 +1,9 @@
 {
   description = "Simple Asciidoctor Example";
-
-  inputs = {
-    asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";
-    flake-utils.follows = "asciidoctor-nix/flake-utils";
-    nixpkgs.follows = "asciidoctor-nix/nixpkgs";
-  };
+  inputs.asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";
 
   outputs = inputs:
-    inputs.flake-utils.lib.eachDefaultSystem (
-      system:
-        inputs.asciidoctor-nix.mkOutputs.${system} (
-          parent: {packages = parent.packages {src = ./src;};}
-        )
+    inputs.asciidoctor-nix.mkOutputs (
+      outputs: {packages = outputs.packages {src = ./src;};}
     );
 }
