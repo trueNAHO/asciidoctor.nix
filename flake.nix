@@ -128,6 +128,7 @@
                                       {
                                         attribute = lib.flatten (
                                           [
+                                            "attribute-missing=error"
                                             "ditaa-format=svg"
                                             "mathematical-format=svg"
                                             "plantuml-format=svg"
