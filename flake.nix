@@ -22,9 +22,12 @@
     };
   };
 
-  outputs = inputs:
+  outputs = inputs: let
+    examples = ./examples;
+  in
     inputs.flake-utils.lib.eachDefaultSystem (
       system: let
+        inherit (pkgs) lib;
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
         checks.git-hooks = inputs.git-hooks.lib.${system}.run {
@@ -54,6 +57,42 @@
         };
 
         formatter = pkgs.alejandra;
+
+        packages.check-templates = pkgs.writeShellApplication {
+          name = "check-templates";
+          runtimeInputs = with pkgs; [nix parallel];
+
+          text = let
+            directories = lib.escapeShellArgs (
+              lib.attrNames (builtins.readDir examples)
+            );
+          in ''
+            # shellcheck disable=SC2016
+            parallel \
+              --halt now,fail=1 \
+              '
+                flake="$(mktemp --directory)"
+
+                cleanup() {
+                  rm --recursive "$flake"
+                }
+
+                trap cleanup EXIT
+
+                cd "$flake"
+
+                cp --no-preserve=all --recursive "${examples}/{1}/." .
+
+                sed \
+                  --in-place \
+                  "s@url = \"github:trueNAHO/asciidoctor.nix\"@url = \"path:${inputs.self}\"@" \
+                  flake.nix
+
+                nix build
+              ' \
+              ::: ${directories}
+          '';
+        };
       }
     )
     // inputs.flake-utils.lib.eachDefaultSystemPassThrough (
@@ -328,23 +367,16 @@
           lib.attrsets.unionOfDisjoint
           {default = inputs.self.templates.simple;}
           (
-            let
-              examples = ./examples;
-            in
-              builtins.mapAttrs
-              (
-                example: _: let
-                  path = lib.path.append examples example;
-                in {
-                  inherit
-                    (import (lib.path.append path "flake.nix"))
-                    description
-                    ;
-
-                  inherit path;
-                }
-              )
-              (builtins.readDir examples)
+            builtins.mapAttrs
+            (
+              example: _: let
+                path = lib.path.append examples example;
+              in {
+                inherit (import (lib.path.append path "flake.nix")) description;
+                inherit path;
+              }
+            )
+            (builtins.readDir examples)
           );
       }
     );
