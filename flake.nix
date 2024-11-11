@@ -126,7 +126,7 @@
                                         ["attribute"]
                                       )
                                       {
-                                        attribute = lib.flatten (
+                                        attribute =
                                           [
                                             "attribute-missing=error"
                                             "ditaa-format=svg"
@@ -135,8 +135,7 @@
                                             "reproducible"
                                             "root=${src}"
                                           ]
-                                          ++ commandOptions.attribute or []
-                                        );
+                                          ++ commandOptions.attribute or [];
 
                                         destination-dir = out;
                                         out-file = outputFile;
