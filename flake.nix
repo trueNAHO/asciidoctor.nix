@@ -81,6 +81,7 @@
                             commandOptions ? {},
                             extraOptions ? {},
                             inputFile ? "main.adoc",
+                            lastModified ? null,
                             name,
                             out ? "${builtins.placeholder "out"}/share/doc",
                             outputFile,
@@ -115,6 +116,14 @@
                                     ''
                                   }
 
+                                  ${
+                                    lib.optionalString (lastModified != null) ''
+                                      export SOURCE_DATE_EPOCH="${
+                                        toString lastModified
+                                      }"
+                                    ''
+                                  }
+
                                   ${command} ${
                                     lib.cli.toGNUCommandLineShell
                                     {}
@@ -134,10 +143,14 @@
                                             "ditaa-format=${format}"
                                             "mathematical-format=${format}"
                                             "plantuml-format=${format}"
-                                            "reproducible"
                                             "root=${src}"
                                           ]
-                                          ++ commandOptions.attribute or [];
+                                          ++ commandOptions.attribute or []
+                                          ++ (
+                                            lib.optional
+                                            (lastModified == null)
+                                            "reproducible"
+                                          );
 
                                         destination-dir = out;
                                         out-file = outputFile;

@@ -4,6 +4,11 @@
 
   outputs = inputs:
     inputs.asciidoctor-nix.mkOutputs (
-      outputs: {packages = outputs.packages {src = ./src;};}
+      outputs: {
+        packages = outputs.packages {
+          inherit (inputs.self) lastModified;
+          src = ./src;
+        };
+      }
     );
 }
