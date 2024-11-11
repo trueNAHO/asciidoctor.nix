@@ -126,12 +126,14 @@
                                         ["attribute"]
                                       )
                                       {
-                                        attribute =
+                                        attribute = let
+                                          format = "svg";
+                                        in
                                           [
                                             "attribute-missing=error"
-                                            "ditaa-format=svg"
-                                            "mathematical-format=svg"
-                                            "plantuml-format=svg"
+                                            "ditaa-format=${format}"
+                                            "mathematical-format=${format}"
+                                            "plantuml-format=${format}"
                                             "reproducible"
                                             "root=${src}"
                                           ]
