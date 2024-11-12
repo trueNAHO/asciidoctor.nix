@@ -2,4 +2,4 @@
 
 == About
 
-Reproducible and Deployable Asciidoctor Template.
+Reproducible and Deployable Asciidoctor Library.
