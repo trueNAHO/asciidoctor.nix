@@ -19,8 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v15
       - uses: DeterminateSystems/magic-nix-cache-action@v8
-      - run: rm Gemfile.lock gemset.nix
-      - run: nix develop --command bundix --lock
+      - run: nix run .#bundix-lock
 
       - uses: peter-evans/create-pull-request@v7.0.5
         with:

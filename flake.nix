@@ -58,40 +58,72 @@
 
         formatter = pkgs.alejandra;
 
-        packages.check-templates = pkgs.writeShellApplication {
-          name = "check-templates";
-          runtimeInputs = with pkgs; [nix parallel];
+        packages = {
+          bundix-lock = pkgs.writeShellApplication {
+            name = "bundix-lock";
+            runtimeInputs = with pkgs; [gitMinimal nix];
 
-          text = let
-            directories = lib.escapeShellArgs (
-              lib.attrNames (builtins.readDir examples)
-            );
-          in ''
-            # shellcheck disable=SC2016
-            parallel \
-              --halt now,fail=1 \
-              '
-                flake="$(mktemp --directory)"
+            text = let
+              src = inputs.self;
+            in ''
+              check_current_working_directory() {
+                git rev-parse --is-inside-work-tree >/dev/null 2>&1 || return
 
-                cleanup() {
-                  rm --recursive "$flake"
-                }
+                git ls-files | while read -r file; do
+                  diff --brief "${src}/$file" "$file" || return
+                done
+              }
 
-                trap cleanup EXIT
+              if ! check_current_working_directory; then
+                printf \
+                  'Current directory (%s) does not match expected Nix source tree: %s\n' \
+                  "$PWD" \
+                  ${src} \
+                  >&2
 
-                cd "$flake"
+                exit 1
+              fi
 
-                cp --no-preserve=all --recursive "${examples}/{1}/." .
+              rm Gemfile.lock gemset.nix
+              nix develop --command bundix --lock
+            '';
+          };
 
-                sed \
-                  --in-place \
-                  "s@url = \"github:trueNAHO/asciidoctor.nix\"@url = \"path:${inputs.self}\"@" \
-                  flake.nix
+          check-templates = pkgs.writeShellApplication {
+            name = "check-templates";
+            runtimeInputs = with pkgs; [nix parallel];
 
-                nix build
-              ' \
-              ::: ${directories}
-          '';
+            text = let
+              directories = lib.escapeShellArgs (
+                lib.attrNames (builtins.readDir examples)
+              );
+            in ''
+              # shellcheck disable=SC2016
+              parallel \
+                --halt now,fail=1 \
+                '
+                  flake="$(mktemp --directory)"
+
+                  cleanup() {
+                    rm --recursive "$flake"
+                  }
+
+                  trap cleanup EXIT
+
+                  cd "$flake"
+
+                  cp --no-preserve=all --recursive "${examples}/{1}/." .
+
+                  sed \
+                    --in-place \
+                    "s@url = \"github:trueNAHO/asciidoctor.nix\"@url = \"path:${inputs.self}\"@" \
+                    flake.nix
+
+                  nix build
+                ' \
+                ::: ${directories}
+            '';
+          };
         };
       }
     )
