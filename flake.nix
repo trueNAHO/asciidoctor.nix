@@ -242,12 +242,10 @@
                               ]
                             );
 
-                          asciidoctorRequire = {
-                            require = map (library: "asciidoctor-${library}") [
-                              "diagram"
-                              "mathematical"
-                            ];
-                          };
+                          asciidoctorRequire =
+                            map
+                            (library: "asciidoctor-${library}")
+                            ["diagram" "mathematical"];
 
                           nonDefaultPackages = args:
                             lib.filterAttrs
@@ -315,7 +313,7 @@
                               lib.asciidoctor.mergeAttrsMkMerge [
                                 {
                                   command = pkgs.asciidoctor.meta.mainProgram;
-                                  commandOptions = asciidoctorRequire;
+                                  commandOptions.require = asciidoctorRequire;
                                   name = "docbook";
                                   outputFile = "main.xml";
                                 }
@@ -328,7 +326,7 @@
                               lib.asciidoctor.mergeAttrsMkMerge [
                                 {
                                   command = pkgs.asciidoctor.meta.mainProgram;
-                                  commandOptions = asciidoctorRequire;
+                                  commandOptions.require = asciidoctorRequire;
                                   name = "html";
                                   outputFile = "index.html";
                                 }
@@ -345,10 +343,10 @@
                                   {
                                     command = pkgs.asciidoctor.meta.mainProgram;
 
-                                    commandOptions =
-                                      lib.attrsets.unionOfDisjoint
-                                      asciidoctorRequire
-                                      {backend = "manpage";};
+                                    commandOptions = {
+                                      backend = "manpage";
+                                      require = asciidoctorRequire;
+                                    };
 
                                     extraOptions.outputs = ["out" "man"];
                                     name = "manpage";
@@ -368,7 +366,7 @@
                               lib.asciidoctor.mergeAttrsMkMerge [
                                 {
                                   command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
-                                  commandOptions = asciidoctorRequire;
+                                  commandOptions.require = asciidoctorRequire;
                                   name = "pdf";
                                   outputFile = "main.pdf";
                                 }
