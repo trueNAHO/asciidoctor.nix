@@ -1,5 +1,5 @@
 {
-  description = "Reproducible Asciidoctor Library";
+  description = "Reproducible and Deployable Asciidoctor Library";
 
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";

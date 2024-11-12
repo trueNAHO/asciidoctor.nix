@@ -1,0 +1,26 @@
+---
+name: Deploy
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v15
+      - uses: DeterminateSystems/magic-nix-cache-action@v8
+
+      - run: nix build
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: result/**/*
+          token: ${{ secrets.GITHUB_TOKEN }}
