@@ -129,7 +129,7 @@
     )
     // inputs.flake-utils.lib.eachDefaultSystemPassThrough (
       system: let
-        inherit (pkgs) lib;
+        lib = pkgs.lib.extend (final: _: import ./lib final);
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
         mkOutputs = modifier:
@@ -159,90 +159,87 @@
                             src,
                           }:
                             pkgs.stdenvNoCC.mkDerivation (
-                              lib.attrsets.unionOfDisjoint
-                              (
-                                builtins.removeAttrs
-                                extraOptions
-                                ["nativeBuildInputs"]
-                              )
-                              {
-                                inherit src;
+                              lib.asciidoctor.mergeAttrsMkMerge [
+                                {
+                                  inherit src;
 
-                                buildPhase = ''
-                                  ${
-                                    lib.optionalString
-                                    (
-                                      builtins.elem
-                                      "asciidoctor-mathematical"
-                                      commandOptions.require or []
-                                    )
-                                    ''
-                                      export FONTCONFIG_FILE="${
-                                        pkgs.makeFontsConf {
-                                          fontDirectories = [
-                                            "${pkgs.lyx}/share/lyx/fonts"
-                                          ];
-                                        }
-                                      }"
-                                    ''
-                                  }
-
-                                  ${
-                                    lib.optionalString (lastModified != null) ''
-                                      export SOURCE_DATE_EPOCH="${
-                                        toString lastModified
-                                      }"
-                                    ''
-                                  }
-
-                                  ${command} ${
-                                    lib.cli.toGNUCommandLineShell
-                                    {}
-                                    (
-                                      lib.attrsets.unionOfDisjoint
+                                  buildPhase = ''
+                                    ${
+                                      lib.optionalString
                                       (
-                                        builtins.removeAttrs
-                                        commandOptions
-                                        ["attribute"]
+                                        builtins.elem
+                                        "asciidoctor-mathematical"
+                                        commandOptions.require or []
                                       )
-                                      {
-                                        attribute = let
-                                          format = "svg";
-                                        in
-                                          [
-                                            "attribute-missing=error"
-                                            "ditaa-format=${format}"
-                                            "mathematical-format=${format}"
-                                            "plantuml-format=${format}"
-                                            "root=${src}"
-                                          ]
-                                          ++ commandOptions.attribute or []
-                                          ++ (
-                                            lib.optional
-                                            (lastModified == null)
-                                            "reproducible"
-                                          );
+                                      ''
+                                        export FONTCONFIG_FILE="${
+                                          pkgs.makeFontsConf {
+                                            fontDirectories = [
+                                              "${pkgs.lyx}/share/lyx/fonts"
+                                            ];
+                                          }
+                                        }"
+                                      ''
+                                    }
 
-                                        destination-dir = out;
-                                        out-file = outputFile;
-                                      }
-                                    )
-                                  } "${inputFile}"
-                                '';
+                                    ${
+                                      lib.optionalString
+                                      (lastModified != null)
+                                      ''
+                                        export SOURCE_DATE_EPOCH="${
+                                          toString lastModified
+                                        }"
+                                      ''
+                                    }
 
-                                installPhase = ''
-                                  mkdir --parents "$out" ${lib.escapeShellArg out}
-                                '';
+                                    ${command} ${
+                                      lib.cli.toGNUCommandLineShell
+                                      {}
+                                      (
+                                        lib.asciidoctor.mergeAttrsMkMerge [
+                                          {
+                                            attribute = let
+                                              format = "svg";
+                                            in
+                                              [
+                                                "attribute-missing=error"
+                                                "ditaa-format=${format}"
+                                                "mathematical-format=${format}"
+                                                "plantuml-format=${format}"
+                                                "root=${src}"
+                                              ]
+                                              ++ (
+                                                lib.optional
+                                                (lastModified == null)
+                                                "reproducible"
+                                              );
 
-                                name = packageName name;
+                                            destination-dir = out;
+                                            out-file = outputFile;
+                                          }
 
-                                nativeBuildInputs = with pkgs;
-                                  [
+                                          commandOptions
+                                        ]
+                                      )
+                                    } "${inputFile}"
+                                  '';
+
+                                  installPhase = ''
+                                    mkdir --parents "$out" ${
+                                      lib.escapeShellArg out
+                                    }
+                                  '';
+
+                                  name = packageName name;
+
+                                  nativeBuildInputs = with pkgs; [
                                     asciidoctor-with-extensions
                                     graphviz
-                                  ]
-                                  ++ extraOptions.nativeBuildInputs or [];
-                              }
+                                  ];
+                                }
+
+                                extraOptions
+                              ]
                             );
 
                           asciidoctorRequire = {
@@ -261,21 +258,26 @@
 
                           presentation = {revealJsDir, ...} @ args:
                             asciidoctor (
-                              {
-                                command = "bundle exec asciidoctor-revealjs";
+                              lib.asciidoctor.mergeAttrsMkMerge [
+                                {
+                                  command = "bundle exec asciidoctor-revealjs";
 
-                                commandOptions.attribute = [
-                                  "revealjsdir=${revealJsDir}"
-                                ];
+                                  commandOptions.attribute = [
+                                    "revealjsdir=${revealJsDir}"
+                                  ];
 
-                                extraOptions.nativeBuildInputs = lib.singleton (
-                                  pkgs.bundlerEnv {
-                                    gemdir = ./.;
-                                    name = packageName "bundler-env";
-                                  }
-                                );
-                              }
-                              // (builtins.removeAttrs args ["revealJsDir"])
+                                  extraOptions.nativeBuildInputs =
+                                    lib.singleton
+                                    (
+                                      pkgs.bundlerEnv {
+                                        gemdir = ./.;
+                                        name = packageName "bundler-env";
+                                      }
+                                    );
+                                }
+
+                                (builtins.removeAttrs args ["revealJsDir"])
+                              ]
                             );
                         in
                           args: {
@@ -310,75 +312,93 @@
                             };
 
                             docbook = asciidoctor (
-                              {
-                                command = pkgs.asciidoctor.meta.mainProgram;
-                                commandOptions = asciidoctorRequire;
-                                name = "docbook";
-                                outputFile = "main.xml";
-                              }
-                              // args
+                              lib.asciidoctor.mergeAttrsMkMerge [
+                                {
+                                  command = pkgs.asciidoctor.meta.mainProgram;
+                                  commandOptions = asciidoctorRequire;
+                                  name = "docbook";
+                                  outputFile = "main.xml";
+                                }
+
+                                args
+                              ]
                             );
 
                             html = asciidoctor (
-                              {
-                                command = pkgs.asciidoctor.meta.mainProgram;
-                                commandOptions = asciidoctorRequire;
-                                name = "html";
-                                outputFile = "index.html";
-                              }
-                              // args
+                              lib.asciidoctor.mergeAttrsMkMerge [
+                                {
+                                  command = pkgs.asciidoctor.meta.mainProgram;
+                                  commandOptions = asciidoctorRequire;
+                                  name = "html";
+                                  outputFile = "index.html";
+                                }
+
+                                args
+                              ]
                             );
 
                             manpage = let
                               sectionNumber = toString 7;
                             in
                               asciidoctor (
-                                {
-                                  command = pkgs.asciidoctor.meta.mainProgram;
+                                lib.asciidoctor.mergeAttrsMkMerge [
+                                  {
+                                    command = pkgs.asciidoctor.meta.mainProgram;
 
-                                  commandOptions =
-                                    lib.attrsets.unionOfDisjoint
-                                    asciidoctorRequire
-                                    {backend = "manpage";};
+                                    commandOptions =
+                                      lib.attrsets.unionOfDisjoint
+                                      asciidoctorRequire
+                                      {backend = "manpage";};
 
-                                  extraOptions.outputs = ["out" "man"];
-                                  name = "manpage";
+                                    extraOptions.outputs = ["out" "man"];
+                                    name = "manpage";
 
-                                  out = "${
-                                    builtins.placeholder "man"
-                                  }/share/man/man${sectionNumber}";
+                                    out = "${
+                                      builtins.placeholder "man"
+                                    }/share/man/man${sectionNumber}";
 
-                                  outputFile = "main.${sectionNumber}";
-                                }
-                                // args
+                                    outputFile = "main.${sectionNumber}";
+                                  }
+
+                                  args
+                                ]
                               );
 
                             pdf = asciidoctor (
-                              {
-                                command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
-                                commandOptions = asciidoctorRequire;
-                                name = "pdf";
-                                outputFile = "main.pdf";
-                              }
-                              // args
+                              lib.asciidoctor.mergeAttrsMkMerge [
+                                {
+                                  command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
+                                  commandOptions = asciidoctorRequire;
+                                  name = "pdf";
+                                  outputFile = "main.pdf";
+                                }
+
+                                args
+                              ]
                             );
 
                             presentationExternal = presentation (
-                              {
-                                name = "presentation-external";
-                                outputFile = "presentation_external.html";
-                                revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
-                              }
-                              // args
+                              lib.asciidoctor.mergeAttrsMkMerge [
+                                {
+                                  name = "presentation-external";
+                                  outputFile = "presentation_external.html";
+                                  revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                                }
+
+                                args
+                              ]
                             );
 
                             presentationLocal = presentation (
-                              {
-                                name = "presentation-local";
-                                outputFile = "presentation_local.html";
-                                revealJsDir = inputs.reveal-js.outPath;
-                              }
-                              // args
+                              lib.asciidoctor.mergeAttrsMkMerge [
+                                {
+                                  name = "presentation-local";
+                                  outputFile = "presentation_local.html";
+                                  revealJsDir = inputs.reveal-js.outPath;
+                                }
+
+                                args
+                              ]
                             );
                           }
                       );
