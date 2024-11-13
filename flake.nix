@@ -223,7 +223,7 @@
                                           commandOptions
                                         ]
                                       )
-                                    } "${inputFile}"
+                                    } ${lib.escapeShellArg inputFile}
                                   '';
 
                                   installPhase = ''
