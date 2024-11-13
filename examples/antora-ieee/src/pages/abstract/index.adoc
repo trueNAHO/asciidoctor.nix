@@ -1,0 +1,4 @@
+[abstract]
+= Abstract
+
+include::{root}/partials/lorem_ipsum.adoc[lines=3..-1]

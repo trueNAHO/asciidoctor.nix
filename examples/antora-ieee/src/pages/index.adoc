@@ -1,0 +1,37 @@
+= asciidoctor.nix
+:sectnums:
+
+[.metadata.text-center%hardbreaks]
+{docdate}
+{empty} +
+Firstname_1 Middlename_1 Lastname_1
+Institution_1
+example_1@email.com
+{empty} +
+Firstname_2 Middlename_2 Lastname_2
+Institution_2
+example_2@email.com
+
+include::{root}/pages/abstract/index.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/pages/references/index.adoc[leveloffset=+1]
