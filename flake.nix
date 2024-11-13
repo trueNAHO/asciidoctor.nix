@@ -202,7 +202,7 @@
                                               format = "svg";
                                             in
                                               [
-                                                "attribute-missing=error"
+                                                "attribute-missing=warn"
                                                 "ditaa-format=${format}"
                                                 "mathematical-format=${format}"
                                                 "plantuml-format=${format}"
@@ -215,6 +215,7 @@
                                               );
 
                                             destination-dir = out;
+                                            failure-level = "WARN";
                                             out-file = outputFile;
                                           }
 
