@@ -154,7 +154,7 @@
                             inputFile ? "main.adoc",
                             lastModified ? null,
                             name,
-                            out ? "${builtins.placeholder "out"}/share/doc",
+                            out ? builtins.placeholder "out",
                             outputFile,
                             src,
                           }:
@@ -334,33 +334,6 @@
                                 args
                               ]
                             );
-
-                            manpage = let
-                              sectionNumber = toString 7;
-                            in
-                              asciidoctor (
-                                lib.asciidoctor.mergeAttrsMkMerge [
-                                  {
-                                    command = pkgs.asciidoctor.meta.mainProgram;
-
-                                    commandOptions = {
-                                      backend = "manpage";
-                                      require = asciidoctorRequire;
-                                    };
-
-                                    extraOptions.outputs = ["out" "man"];
-                                    name = "manpage";
-
-                                    out = "${
-                                      builtins.placeholder "man"
-                                    }/share/man/man${sectionNumber}";
-
-                                    outputFile = "main.${sectionNumber}";
-                                  }
-
-                                  args
-                                ]
-                              );
 
                             pdf = asciidoctor (
                               lib.asciidoctor.mergeAttrsMkMerge [
