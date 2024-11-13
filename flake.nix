@@ -203,6 +203,7 @@
                                             in
                                               [
                                                 "attribute-missing=warn"
+                                                "bibtex-throw"
                                                 "ditaa-format=${format}"
                                                 "mathematical-format=${format}"
                                                 "plantuml-format=${format}"
@@ -246,7 +247,7 @@
                           asciidoctorRequire =
                             map
                             (library: "asciidoctor-${library}")
-                            ["diagram" "mathematical"];
+                            ["bibtex" "diagram" "mathematical"];
 
                           nonDefaultPackages = args:
                             lib.filterAttrs
