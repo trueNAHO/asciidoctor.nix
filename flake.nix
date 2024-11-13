@@ -23,6 +23,7 @@
   };
 
   outputs = inputs: let
+    builtinsReadDirExamples = builtins.readDir examples;
     examples = ./examples;
   in
     inputs.flake-utils.lib.eachDefaultSystem (
@@ -95,7 +96,7 @@
 
             text = let
               directories = lib.escapeShellArgs (
-                lib.attrNames (builtins.readDir examples)
+                lib.attrNames builtinsReadDirExamples
               );
             in ''
               # shellcheck disable=SC2016
@@ -402,7 +403,7 @@
                 inherit path;
               }
             )
-            (builtins.readDir examples)
+            builtinsReadDirExamples
           );
       }
     );
