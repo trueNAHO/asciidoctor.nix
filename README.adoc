@@ -1,4 +1,4 @@
-= asciidoctor-nix
+= asciidoctor.nix
 
 == About
 
