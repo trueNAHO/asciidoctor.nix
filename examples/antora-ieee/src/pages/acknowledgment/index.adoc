@@ -1,0 +1,3 @@
+== Acknowledgment
+
+This paper was generated using _asciidoctor.nix_ cite:[naho:radal].

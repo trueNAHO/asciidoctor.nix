@@ -34,4 +34,10 @@ include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
 
 include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
 
+:sectnums!:
+
+include::{root}/pages/acknowledgment/index.adoc[leveloffset=+1]
+
+:sectnums:
+
 include::{root}/pages/references/index.adoc[leveloffset=+1]
