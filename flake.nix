@@ -251,11 +251,6 @@
                             (library: "asciidoctor-${library}")
                             ["bibtex" "diagram" "mathematical"];
 
-                          nonDefaultPackages = args:
-                            lib.filterAttrs
-                            (name: _: !lib.hasPrefix "default" name)
-                            (self (builtins.removeAttrs args ["name"]));
-
                           packageName = name: "asciidoctor-nix-${name}";
 
                           presentation = {revealJsDir, ...} @ args:
@@ -282,13 +277,17 @@
                               ]
                             );
                         in
-                          args: {
+                          args: let
+                            nonDefaultPackages =
+                              lib.filterAttrs
+                              (name: _: !lib.hasPrefix "default" name)
+                              (self (builtins.removeAttrs args ["name"]));
+                          in {
                             default = pkgs.buildEnv {
                               name = packageName (args.name or "default");
 
-                              paths = lib.attrsets.attrValues (
-                                nonDefaultPackages args
-                              );
+                              paths =
+                                lib.attrsets.attrValues nonDefaultPackages;
                             };
 
                             defaultExternal = pkgs.buildEnv {
@@ -299,7 +298,7 @@
                               paths = lib.attrsets.attrValues (
                                 lib.attrsets.filterAttrs
                                 (name: _: !lib.hasSuffix "Local" name)
-                                (nonDefaultPackages args)
+                                nonDefaultPackages
                               );
                             };
 
@@ -309,7 +308,7 @@
                               paths = lib.attrsets.attrValues (
                                 lib.attrsets.filterAttrs
                                 (name: _: !lib.hasSuffix "External" name)
-                                (nonDefaultPackages args)
+                                nonDefaultPackages
                               );
                             };
 
