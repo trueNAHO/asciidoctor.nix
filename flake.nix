@@ -246,11 +246,6 @@
                               ]
                             );
 
-                          asciidoctorRequire =
-                            map
-                            (library: "asciidoctor-${library}")
-                            ["bibtex" "diagram" "mathematical"];
-
                           packageName = name: "asciidoctor-nix-${name}";
 
                           presentation = {revealJsDir, ...} @ args:
@@ -278,6 +273,23 @@
                             );
                         in
                           args: let
+                            asciidoctorRequire =
+                              map
+                              (library: "asciidoctor-${library}")
+                              (
+                                ["diagram" "mathematical"]
+                                ++ lib.optional
+                                (
+                                  builtins.any
+                                  (
+                                    commandOption:
+                                      lib.hasPrefix "bibtex-file" commandOption
+                                  )
+                                  args.commandOptions.attribute or []
+                                )
+                                "bibtex"
+                              );
+
                             nonDefaultPackages =
                               lib.filterAttrs
                               (name: _: !lib.hasPrefix "default" name)
