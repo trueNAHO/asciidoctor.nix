@@ -284,7 +284,7 @@
                             (name: _: !lib.hasPrefix "${prefix.hyphen}default" name)
                             (self rawArgs);
 
-                          packageName = name: "asciidoctor-nix-${prefix.hyphen}${name}";
+                          packageName = name: prefix.hyphen + name;
 
                           prefix = let
                             prefix = separator:
