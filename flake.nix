@@ -293,19 +293,17 @@
                             nonDefaultPackages =
                               lib.filterAttrs
                               (name: _: !lib.hasPrefix "default" name)
-                              (self (builtins.removeAttrs args ["name"]));
+                              (self args);
                           in {
                             default = pkgs.buildEnv {
-                              name = packageName (args.name or "default");
+                              name = packageName "default";
 
                               paths =
                                 lib.attrsets.attrValues nonDefaultPackages;
                             };
 
                             default-external = pkgs.buildEnv {
-                              name = packageName (
-                                args.name or "default-external"
-                              );
+                              name = packageName "default-external";
 
                               paths = lib.attrsets.attrValues (
                                 lib.attrsets.filterAttrs
@@ -315,7 +313,7 @@
                             };
 
                             default-local = pkgs.buildEnv {
-                              name = packageName (args.name or "default-local");
+                              name = packageName "default-local";
 
                               paths = lib.attrsets.attrValues (
                                 lib.attrsets.filterAttrs
