@@ -302,24 +302,24 @@
                                 lib.attrsets.attrValues nonDefaultPackages;
                             };
 
-                            defaultExternal = pkgs.buildEnv {
+                            default-external = pkgs.buildEnv {
                               name = packageName (
                                 args.name or "default-external"
                               );
 
                               paths = lib.attrsets.attrValues (
                                 lib.attrsets.filterAttrs
-                                (name: _: !lib.hasSuffix "Local" name)
+                                (name: _: !lib.hasSuffix "-local" name)
                                 nonDefaultPackages
                               );
                             };
 
-                            defaultLocal = pkgs.buildEnv {
+                            default-local = pkgs.buildEnv {
                               name = packageName (args.name or "default-local");
 
                               paths = lib.attrsets.attrValues (
                                 lib.attrsets.filterAttrs
-                                (name: _: !lib.hasSuffix "External" name)
+                                (name: _: !lib.hasSuffix "-external" name)
                                 nonDefaultPackages
                               );
                             };
@@ -363,7 +363,7 @@
                               ]
                             );
 
-                            presentationExternal = presentation (
+                            presentation-external = presentation (
                               lib.asciidoctor.mergeAttrsMkMerge [
                                 {
                                   name = "presentation-external";
@@ -375,7 +375,7 @@
                               ]
                             );
 
-                            presentationLocal = presentation (
+                            presentation-local = presentation (
                               lib.asciidoctor.mergeAttrsMkMerge [
                                 {
                                   name = "presentation-local";
