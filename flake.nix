@@ -120,7 +120,14 @@
                     "s@url = \"github:trueNAHO/asciidoctor.nix\"@url = \"path:${inputs.self}\"@" \
                     flake.nix
 
-                  nix build
+                  nix flake show --json |
+                    jq --raw-output "
+                      .packages |
+                      to_entries[0].value |
+                      keys[] |
+                      select(test(\"default\$\"))
+                    " |
+                    xargs -I {} nix build .#{}
                 ' \
                 ::: ${directories}
             '';
@@ -147,7 +154,13 @@
                     )
                     {
                       packages = lib.fix (
-                        self: let
+                        self: rawArgs: let
+                          args = builtins.removeAttrs rawArgs [
+                            "command"
+                            "name"
+                            "outputFile"
+                          ];
+
                           asciidoctor = {
                             command,
                             commandOptions ? {},
@@ -219,7 +232,10 @@
 
                                             destination-dir = out;
                                             failure-level = "WARN";
-                                            out-file = outputFile;
+
+                                            out-file = "${
+                                              prefix.underscore
+                                            }${outputFile}";
                                           }
 
                                           commandOptions
@@ -246,7 +262,39 @@
                               ]
                             );
 
-                          packageName = name: "asciidoctor-nix-${name}";
+                          asciidoctorRequire =
+                            map
+                            (library: "asciidoctor-${library}")
+                            (
+                              ["diagram" "mathematical"]
+                              ++ lib.optional
+                              (
+                                builtins.any
+                                (
+                                  commandOption:
+                                    lib.hasPrefix "bibtex-file" commandOption
+                                )
+                                args.commandOptions.attribute or []
+                              )
+                              "bibtex"
+                            );
+
+                          nonDefaultPackages =
+                            lib.filterAttrs
+                            (name: _: !lib.hasPrefix "${prefix.hyphen}default" name)
+                            (self rawArgs);
+
+                          packageName = name: "asciidoctor-nix-${prefix.hyphen}${name}";
+
+                          prefix = let
+                            prefix = separator:
+                              lib.optionalString
+                              (rawArgs ? "name")
+                              "${rawArgs.name}${separator}";
+                          in {
+                            hyphen = prefix "-";
+                            underscore = prefix "_";
+                          };
 
                           presentation = {revealJsDir, ...} @ args:
                             asciidoctor (
@@ -271,120 +319,97 @@
                                 (builtins.removeAttrs args ["revealJsDir"])
                               ]
                             );
-                        in
-                          args: let
-                            asciidoctorRequire =
-                              map
-                              (library: "asciidoctor-${library}")
-                              (
-                                ["diagram" "mathematical"]
-                                ++ lib.optional
-                                (
-                                  builtins.any
-                                  (
-                                    commandOption:
-                                      lib.hasPrefix "bibtex-file" commandOption
-                                  )
-                                  args.commandOptions.attribute or []
-                                )
-                                "bibtex"
-                              );
+                        in {
+                          "${prefix.hyphen}default" = pkgs.buildEnv {
+                            name = packageName "default";
 
-                            nonDefaultPackages =
-                              lib.filterAttrs
-                              (name: _: !lib.hasPrefix "default" name)
-                              (self args);
-                          in {
-                            default = pkgs.buildEnv {
-                              name = packageName "default";
+                            paths =
+                              lib.attrsets.attrValues nonDefaultPackages;
+                          };
 
-                              paths =
-                                lib.attrsets.attrValues nonDefaultPackages;
-                            };
+                          "${prefix.hyphen}default-external" = pkgs.buildEnv {
+                            name = packageName "default-external";
 
-                            default-external = pkgs.buildEnv {
-                              name = packageName "default-external";
-
-                              paths = lib.attrsets.attrValues (
-                                lib.attrsets.filterAttrs
-                                (name: _: !lib.hasSuffix "-local" name)
-                                nonDefaultPackages
-                              );
-                            };
-
-                            default-local = pkgs.buildEnv {
-                              name = packageName "default-local";
-
-                              paths = lib.attrsets.attrValues (
-                                lib.attrsets.filterAttrs
-                                (name: _: !lib.hasSuffix "-external" name)
-                                nonDefaultPackages
-                              );
-                            };
-
-                            docbook = asciidoctor (
-                              lib.asciidoctor.mergeAttrsMkMerge [
-                                {
-                                  command = pkgs.asciidoctor.meta.mainProgram;
-                                  commandOptions.require = asciidoctorRequire;
-                                  name = "docbook";
-                                  outputFile = "main.xml";
-                                }
-
-                                args
-                              ]
+                            paths = lib.attrsets.attrValues (
+                              lib.attrsets.filterAttrs
+                              (name: _: !lib.hasSuffix "-local" name)
+                              nonDefaultPackages
                             );
+                          };
 
-                            html = asciidoctor (
-                              lib.asciidoctor.mergeAttrsMkMerge [
-                                {
-                                  command = pkgs.asciidoctor.meta.mainProgram;
-                                  commandOptions.require = asciidoctorRequire;
-                                  name = "html";
-                                  outputFile = "index.html";
-                                }
+                          "${prefix.hyphen}default-local" = pkgs.buildEnv {
+                            name = packageName "default-local";
 
-                                args
-                              ]
+                            paths = lib.attrsets.attrValues (
+                              lib.attrsets.filterAttrs
+                              (name: _: !lib.hasSuffix "-external" name)
+                              nonDefaultPackages
                             );
+                          };
 
-                            pdf = asciidoctor (
-                              lib.asciidoctor.mergeAttrsMkMerge [
-                                {
-                                  command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
-                                  commandOptions.require = asciidoctorRequire;
-                                  name = "pdf";
-                                  outputFile = "main.pdf";
-                                }
+                          "${prefix.hyphen}docbook" = asciidoctor (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                command = pkgs.asciidoctor.meta.mainProgram;
+                                commandOptions.require = asciidoctorRequire;
+                                name = "docbook";
+                                outputFile = "main.xml";
+                              }
 
-                                args
-                              ]
-                            );
+                              args
+                            ]
+                          );
 
-                            presentation-external = presentation (
-                              lib.asciidoctor.mergeAttrsMkMerge [
-                                {
-                                  name = "presentation-external";
-                                  outputFile = "presentation_external.html";
-                                  revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
-                                }
+                          "${prefix.hyphen}html" = asciidoctor (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                command = pkgs.asciidoctor.meta.mainProgram;
+                                commandOptions.require = asciidoctorRequire;
+                                name = "html";
+                                outputFile = "index.html";
+                              }
 
-                                args
-                              ]
-                            );
+                              args
+                            ]
+                          );
 
-                            presentation-local = presentation (
-                              lib.asciidoctor.mergeAttrsMkMerge [
-                                {
-                                  name = "presentation-local";
-                                  outputFile = "presentation_local.html";
-                                  revealJsDir = inputs.reveal-js.outPath;
-                                }
+                          "${prefix.hyphen}pdf" = asciidoctor (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
+                                commandOptions.require = asciidoctorRequire;
+                                name = "pdf";
+                                outputFile = "main.pdf";
+                              }
 
-                                args
-                              ]
-                            );
-                          }
+                              args
+                            ]
+                          );
+
+                          "${prefix.hyphen}presentation-external" = presentation (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                name = "presentation-external";
+                                outputFile = "presentation_external.html";
+                                revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                              }
+
+                              args
+                            ]
+                          );
+
+                          "${prefix.hyphen}presentation-local" = presentation (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                name = "presentation-local";
+                                outputFile = "presentation_local.html";
+                                revealJsDir = inputs.reveal-js.outPath;
+                              }
+
+                              args
+                            ]
+                          );
+                        }
                       );
                     };
                 in
