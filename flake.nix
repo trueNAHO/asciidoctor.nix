@@ -137,9 +137,11 @@
     )
     // inputs.flake-utils.lib.eachDefaultSystemPassThrough (
       system: let
-        lib = pkgs.lib.extend (final: _: import ./lib final);
+        lib = inputs.self.mkLib pkgs.lib;
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
+        mkLib = lib: lib.extend (final: _: import ./lib final);
+
         mkOutputs = modifier:
           inputs.flake-utils.lib.eachDefaultSystem (
             system:
