@@ -92,14 +92,7 @@
                     "s@url = \"github:trueNAHO/asciidoctor.nix\"@url = \"path:${inputs.self}\"@" \
                     flake.nix
 
-                  nix flake show --json |
-                    jq --raw-output "
-                      .packages |
-                      to_entries[0].value |
-                      keys[] |
-                      select(test(\"default\$\"))
-                    " |
-                    xargs -I {} nix build .#{}
+                  nix flake check
                 ' \
                 ::: ${directories}
             '';
