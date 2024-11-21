@@ -155,7 +155,7 @@
                             inputFile ? "main.adoc",
                             lastModified ? null,
                             name,
-                            out ? builtins.placeholder "out",
+                            out ? "${builtins.placeholder "out"}/share/doc",
                             outputFile,
                             src,
                           }:
