@@ -31,34 +31,6 @@
         inherit (pkgs) lib;
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
-        checks.git-hooks = inputs.git-hooks.lib.${system}.run {
-          hooks = {
-            alejandra = {
-              enable = true;
-              settings.verbosity = "quiet";
-            };
-
-            deadnix.enable = true;
-            statix.enable = true;
-            typos.enable = true;
-            yamllint.enable = true;
-          };
-
-          src = ./.;
-        };
-
-        devShells.default = pkgs.mkShell {
-          inherit (inputs.self.checks.${system}.git-hooks) shellHook;
-
-          packages = [
-            inputs.self.checks.${system}.git-hooks.enabledPackages
-            pkgs.asciidoctor-with-extensions
-            pkgs.bundix
-          ];
-        };
-
-        formatter = pkgs.alejandra;
-
         packages = {
           bundix-lock = pkgs.writeShellApplication {
             name = "bundix-lock";
@@ -140,289 +112,319 @@
         lib = inputs.self.mkLib pkgs.lib;
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
+        inherit
+          (inputs.self.mkOutputs {packages = null;})
+          checks
+          devShells
+          formatter
+          ;
+
         mkLib = lib: lib.extend (final: _: import ./lib final);
 
-        mkOutputs = modifier:
+        mkOutputs = modifiers:
           inputs.flake-utils.lib.eachDefaultSystem (
             system:
-              lib.filterAttrs (_: value: value != null) (
-                let
-                  outputs =
-                    lib.attrsets.unionOfDisjoint
-                    (
-                      lib.genAttrs
-                      ["checks" "devShells" "formatter"]
-                      (output: inputs.self.${output}.${system})
-                    )
-                    {
-                      packages = lib.fix (
-                        self: rawArgs: let
-                          args = builtins.removeAttrs rawArgs [
-                            "command"
-                            "name"
-                            "outputFile"
-                          ];
+              lib.filterAttrs
+              (output: _: modifiers.${output} or true != null)
+              (
+                lib.fix (
+                  self: {
+                    checks.git-hooks = inputs.git-hooks.lib.${system}.run (
+                      lib.asciidoctor.mergeAttrsMkMerge [
+                        {
+                          hooks = {
+                            alejandra = {
+                              enable = true;
+                              settings.verbosity = "quiet";
+                            };
 
-                          asciidoctor = {
-                            command,
-                            commandOptions ? {},
-                            extraOptions ? {},
-                            inputFile ? "main.adoc",
-                            lastModified ? null,
-                            name,
-                            out ? "${builtins.placeholder "out"}/share/doc",
-                            outputFile,
-                            src,
-                          }:
-                            pkgs.stdenvNoCC.mkDerivation (
-                              lib.asciidoctor.mergeAttrsMkMerge [
-                                {
-                                  inherit src;
-
-                                  buildPhase = ''
-                                    ${
-                                      lib.optionalString
-                                      (
-                                        builtins.elem
-                                        "asciidoctor-mathematical"
-                                        commandOptions.require or []
-                                      )
-                                      ''
-                                        export FONTCONFIG_FILE="${
-                                          pkgs.makeFontsConf {
-                                            fontDirectories = [
-                                              "${pkgs.lyx}/share/lyx/fonts"
-                                            ];
-                                          }
-                                        }"
-                                      ''
-                                    }
-
-                                    ${
-                                      lib.optionalString
-                                      (lastModified != null)
-                                      ''
-                                        export SOURCE_DATE_EPOCH="${
-                                          toString lastModified
-                                        }"
-                                      ''
-                                    }
-
-                                    ${command} ${
-                                      lib.cli.toGNUCommandLineShell
-                                      {}
-                                      (
-                                        lib.asciidoctor.mergeAttrsMkMerge [
-                                          {
-                                            attribute = let
-                                              format = "svg";
-                                            in
-                                              [
-                                                "attribute-missing=warn"
-                                                "bibtex-throw"
-                                                "ditaa-format=${format}"
-                                                "mathematical-format=${format}"
-                                                "plantuml-format=${format}"
-                                                "root=${src}"
-                                                "source-highlighter=rouge"
-                                              ]
-                                              ++ (
-                                                lib.optional
-                                                (lastModified == null)
-                                                "reproducible"
-                                              );
-
-                                            destination-dir = out;
-                                            failure-level = "WARN";
-
-                                            out-file = "${
-                                              prefix.underscore
-                                            }${outputFile}";
-                                          }
-
-                                          commandOptions
-                                        ]
-                                      )
-                                    } ${lib.escapeShellArg inputFile}
-                                  '';
-
-                                  installPhase = ''
-                                    mkdir --parents "$out" ${
-                                      lib.escapeShellArg out
-                                    }
-                                  '';
-
-                                  name = packageName name;
-
-                                  nativeBuildInputs = with pkgs; [
-                                    asciidoctor-with-extensions
-                                    graphviz
-                                  ];
-                                }
-
-                                extraOptions
-                              ]
-                            );
-
-                          asciidoctorRequire =
-                            map
-                            (library: "asciidoctor-${library}")
-                            (
-                              ["diagram" "mathematical"]
-                              ++ lib.optional
-                              (
-                                builtins.any
-                                (
-                                  commandOption:
-                                    lib.hasPrefix "bibtex-file" commandOption
-                                )
-                                args.commandOptions.attribute or []
-                              )
-                              "bibtex"
-                            );
-
-                          nonDefaultPackages =
-                            lib.filterAttrs
-                            (name: _: !lib.hasPrefix "${prefix.hyphen}default" name)
-                            (self rawArgs);
-
-                          packageName = name: prefix.hyphen + name;
-
-                          prefix = let
-                            prefix = separator:
-                              lib.optionalString
-                              (rawArgs ? "name")
-                              "${rawArgs.name}${separator}";
-                          in {
-                            hyphen = prefix "-";
-                            underscore = prefix "_";
+                            deadnix.enable = true;
+                            statix.enable = true;
+                            typos.enable = true;
+                            yamllint.enable = true;
                           };
 
-                          presentation = {revealJsDir, ...} @ args:
-                            asciidoctor (
-                              lib.asciidoctor.mergeAttrsMkMerge [
-                                {
-                                  command = "bundle exec asciidoctor-revealjs";
-
-                                  commandOptions.attribute = [
-                                    "revealjsdir=${revealJsDir}"
-                                  ];
-
-                                  extraOptions.nativeBuildInputs =
-                                    lib.singleton
-                                    (
-                                      pkgs.bundlerEnv {
-                                        gemdir = ./.;
-                                        name = packageName "bundler-env";
-                                      }
-                                    );
-                                }
-
-                                (builtins.removeAttrs args ["revealJsDir"])
-                              ]
-                            );
-                        in {
-                          "${prefix.hyphen}default" = pkgs.buildEnv {
-                            name = packageName "default";
-
-                            paths =
-                              lib.attrsets.attrValues nonDefaultPackages;
-                          };
-
-                          "${prefix.hyphen}default-external" = pkgs.buildEnv {
-                            name = packageName "default-external";
-
-                            paths = lib.attrsets.attrValues (
-                              lib.attrsets.filterAttrs
-                              (name: _: !lib.hasSuffix "-local" name)
-                              nonDefaultPackages
-                            );
-                          };
-
-                          "${prefix.hyphen}default-local" = pkgs.buildEnv {
-                            name = packageName "default-local";
-
-                            paths = lib.attrsets.attrValues (
-                              lib.attrsets.filterAttrs
-                              (name: _: !lib.hasSuffix "-external" name)
-                              nonDefaultPackages
-                            );
-                          };
-
-                          "${prefix.hyphen}docbook" = asciidoctor (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
-                                command = pkgs.asciidoctor.meta.mainProgram;
-                                commandOptions.require = asciidoctorRequire;
-                                name = "docbook";
-                                outputFile = "main.xml";
-                              }
-
-                              args
-                            ]
-                          );
-
-                          "${prefix.hyphen}html" = asciidoctor (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
-                                command = pkgs.asciidoctor.meta.mainProgram;
-                                commandOptions.require = asciidoctorRequire;
-                                name = "html";
-                                outputFile = "index.html";
-                              }
-
-                              args
-                            ]
-                          );
-
-                          "${prefix.hyphen}pdf" = asciidoctor (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
-                                command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
-                                commandOptions.require = asciidoctorRequire;
-                                name = "pdf";
-                                outputFile = "main.pdf";
-                              }
-
-                              args
-                            ]
-                          );
-
-                          "${prefix.hyphen}presentation-external" = presentation (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
-                                name = "presentation-external";
-                                outputFile = "presentation_external.html";
-                                revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
-                              }
-
-                              args
-                            ]
-                          );
-
-                          "${prefix.hyphen}presentation-local" = presentation (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
-                                name = "presentation-local";
-                                outputFile = "presentation_local.html";
-                                revealJsDir = inputs.reveal-js.outPath;
-                              }
-
-                              args
-                            ]
-                          );
+                          src = ./.;
                         }
+
+                        modifiers.checks or {}
+                      ]
+                    );
+
+                    devShells.default = pkgs.mkShell (
+                      lib.asciidoctor.mergeAttrsMkMerge [
+                        {
+                          inherit (self.checks.git-hooks) shellHook;
+
+                          packages = [
+                            self.checks.git-hooks.enabledPackages
+                            pkgs.asciidoctor-with-extensions
+                            pkgs.bundix
+                          ];
+                        }
+
+                        modifiers.devShells or {}
+                      ]
+                    );
+
+                    formatter = modifiers.formatter or pkgs.alejandra;
+
+                    packages = let
+                      args = builtins.removeAttrs rawArgs [
+                        "command"
+                        "name"
+                        "outputFile"
+                      ];
+
+                      asciidoctor = {
+                        command,
+                        commandOptions ? {},
+                        extraOptions ? {},
+                        inputFile ? "main.adoc",
+                        lastModified ? null,
+                        name,
+                        out ? "${builtins.placeholder "out"}/share/doc",
+                        outputFile,
+                        src,
+                      }:
+                        pkgs.stdenvNoCC.mkDerivation (
+                          lib.asciidoctor.mergeAttrsMkMerge [
+                            {
+                              inherit src;
+
+                              buildPhase = ''
+                                ${
+                                  lib.optionalString
+                                  (
+                                    builtins.elem
+                                    "asciidoctor-mathematical"
+                                    commandOptions.require or []
+                                  )
+                                  ''
+                                    export FONTCONFIG_FILE="${
+                                      pkgs.makeFontsConf {
+                                        fontDirectories = [
+                                          "${pkgs.lyx}/share/lyx/fonts"
+                                        ];
+                                      }
+                                    }"
+                                  ''
+                                }
+
+                                ${
+                                  lib.optionalString
+                                  (lastModified != null)
+                                  ''
+                                    export SOURCE_DATE_EPOCH="${
+                                      toString lastModified
+                                    }"
+                                  ''
+                                }
+
+                                ${command} ${
+                                  lib.cli.toGNUCommandLineShell
+                                  {}
+                                  (
+                                    lib.asciidoctor.mergeAttrsMkMerge [
+                                      {
+                                        attribute = let
+                                          format = "svg";
+                                        in
+                                          [
+                                            "attribute-missing=warn"
+                                            "bibtex-throw"
+                                            "ditaa-format=${format}"
+                                            "mathematical-format=${format}"
+                                            "plantuml-format=${format}"
+                                            "root=${src}"
+                                            "source-highlighter=rouge"
+                                          ]
+                                          ++ (
+                                            lib.optional
+                                            (lastModified == null)
+                                            "reproducible"
+                                          );
+
+                                        destination-dir = out;
+                                        failure-level = "WARN";
+
+                                        out-file = "${
+                                          prefix.underscore
+                                        }${outputFile}";
+                                      }
+
+                                      commandOptions
+                                    ]
+                                  )
+                                } ${lib.escapeShellArg inputFile}
+                              '';
+
+                              installPhase = ''
+                                mkdir --parents "$out" ${lib.escapeShellArg out}
+                              '';
+
+                              name = packageName name;
+
+                              nativeBuildInputs = with pkgs; [
+                                asciidoctor-with-extensions
+                                graphviz
+                              ];
+                            }
+
+                            extraOptions
+                          ]
+                        );
+
+                      asciidoctorRequire =
+                        map
+                        (library: "asciidoctor-${library}")
+                        (
+                          ["diagram" "mathematical"]
+                          ++ lib.optional
+                          (
+                            builtins.any
+                            (
+                              commandOption:
+                                lib.hasPrefix "bibtex-file" commandOption
+                            )
+                            args.commandOptions.attribute or []
+                          )
+                          "bibtex"
+                        );
+
+                      nonDefaultPackages =
+                        lib.filterAttrs
+                        (name: _: !lib.hasPrefix "${prefix.hyphen}default" name)
+                        self.packages;
+
+                      packageName = name: prefix.hyphen + name;
+
+                      prefix = let
+                        prefix = separator:
+                          lib.optionalString
+                          (rawArgs ? "name")
+                          (rawArgs.name + separator);
+                      in {
+                        hyphen = prefix "-";
+                        underscore = prefix "_";
+                      };
+
+                      presentation = {revealJsDir, ...} @ args:
+                        asciidoctor (
+                          lib.asciidoctor.mergeAttrsMkMerge [
+                            {
+                              command = "bundle exec asciidoctor-revealjs";
+
+                              commandOptions.attribute = [
+                                "revealjsdir=${revealJsDir}"
+                              ];
+
+                              extraOptions.nativeBuildInputs =
+                                lib.singleton
+                                (
+                                  pkgs.bundlerEnv {
+                                    gemdir = ./.;
+                                    name = packageName "bundler-env";
+                                  }
+                                );
+                            }
+
+                            (builtins.removeAttrs args ["revealJsDir"])
+                          ]
+                        );
+
+                      rawArgs = modifiers.packages or {};
+                    in {
+                      "${prefix.hyphen}default" = pkgs.buildEnv {
+                        name = packageName "default";
+                        paths = lib.attrsets.attrValues nonDefaultPackages;
+                      };
+
+                      "${prefix.hyphen}default-external" = pkgs.buildEnv {
+                        name = packageName "default-external";
+
+                        paths = lib.attrsets.attrValues (
+                          lib.attrsets.filterAttrs
+                          (name: _: !lib.hasSuffix "-local" name)
+                          nonDefaultPackages
+                        );
+                      };
+
+                      "${prefix.hyphen}default-local" = pkgs.buildEnv {
+                        name = packageName "default-local";
+
+                        paths = lib.attrsets.attrValues (
+                          lib.attrsets.filterAttrs
+                          (name: _: !lib.hasSuffix "-external" name)
+                          nonDefaultPackages
+                        );
+                      };
+
+                      "${prefix.hyphen}docbook" = asciidoctor (
+                        lib.asciidoctor.mergeAttrsMkMerge [
+                          {
+                            command = pkgs.asciidoctor.meta.mainProgram;
+                            commandOptions.require = asciidoctorRequire;
+                            name = "docbook";
+                            outputFile = "main.xml";
+                          }
+
+                          args
+                        ]
+                      );
+
+                      "${prefix.hyphen}html" = asciidoctor (
+                        lib.asciidoctor.mergeAttrsMkMerge [
+                          {
+                            command = pkgs.asciidoctor.meta.mainProgram;
+                            commandOptions.require = asciidoctorRequire;
+                            name = "html";
+                            outputFile = "index.html";
+                          }
+
+                          args
+                        ]
+                      );
+
+                      "${prefix.hyphen}pdf" = asciidoctor (
+                        lib.asciidoctor.mergeAttrsMkMerge [
+                          {
+                            command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
+                            commandOptions.require = asciidoctorRequire;
+                            name = "pdf";
+                            outputFile = "main.pdf";
+                          }
+
+                          args
+                        ]
+                      );
+
+                      "${prefix.hyphen}presentation-external" = presentation (
+                        lib.asciidoctor.mergeAttrsMkMerge [
+                          {
+                            name = "presentation-external";
+                            outputFile = "presentation_external.html";
+                            revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                          }
+
+                          args
+                        ]
+                      );
+
+                      "${prefix.hyphen}presentation-local" = presentation (
+                        lib.asciidoctor.mergeAttrsMkMerge [
+                          {
+                            name = "presentation-local";
+                            outputFile = "presentation_local.html";
+                            revealJsDir = inputs.reveal-js.outPath;
+                          }
+
+                          args
+                        ]
                       );
                     };
-                in
-                  lib.mapAttrs
-                  (
-                    let
-                      modifiedOutputs = modifier outputs;
-                    in
-                      name: value: modifiedOutputs.${name} or value
-                  )
-                  outputs
+                  }
+                )
               )
           );
 

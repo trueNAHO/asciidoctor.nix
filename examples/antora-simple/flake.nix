@@ -3,14 +3,12 @@
   inputs.asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";
 
   outputs = inputs:
-    inputs.asciidoctor-nix.mkOutputs (
-      outputs: {
-        packages = outputs.packages {
-          inherit (inputs.self) lastModified;
+    inputs.asciidoctor-nix.mkOutputs {
+      packages = {
+        inherit (inputs.self) lastModified;
 
-          inputFile = "pages/index.adoc";
-          src = ./src;
-        };
-      }
-    );
+        inputFile = "pages/index.adoc";
+        src = ./src;
+      };
+    };
 }
