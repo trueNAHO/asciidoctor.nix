@@ -33,32 +33,52 @@
           (
             inputs.flake-utils.lib.eachDefaultSystem (
               _: {
-                packages = {
-                  application-default = let
-                    mainProgram = "application";
-                  in
-                    pkgs.stdenv.mkDerivation {
-                      buildPhase = "$CC ${mainProgram}.c -o ${mainProgram}";
+                packages = lib.fix (
+                  self: {
+                    application-default = let
+                      mainProgram = "application";
+                    in
+                      pkgs.stdenv.mkDerivation {
+                        buildPhase = "$CC ${mainProgram}.c -o ${mainProgram}";
 
-                      installPhase = ''
-                        mkdir --parent $out/bin
-                        cp ${mainProgram} $out/bin
-                      '';
+                        installPhase = ''
+                          mkdir --parent $out/bin
+                          cp ${mainProgram} $out/bin
+                        '';
 
-                      name = mainProgram;
-                      src = src/application;
+                        name = mainProgram;
+                        src = src/application;
+                      };
+
+                    application-default-external = self.application-default;
+
+                    default = pkgs.buildEnv {
+                      name = "default";
+
+                      paths = lib.attrsets.attrValues (
+                        lib.filterAttrs
+                        (
+                          package: _:
+                            builtins.match ".*-default" package != null
+                        )
+                        inputs.self.packages.${system}
+                      );
                     };
 
-                  default = pkgs.buildEnv {
-                    name = "default";
+                    default-external = pkgs.buildEnv {
+                      name = "default-external";
 
-                    paths = lib.attrsets.attrValues (
-                      lib.filterAttrs
-                      (package: _: builtins.match ".*-default" package != null)
-                      inputs.self.packages.${system}
-                    );
-                  };
-                };
+                      paths = lib.attrsets.attrValues (
+                        lib.filterAttrs
+                        (
+                          package: _:
+                            builtins.match ".*-default-external" package != null
+                        )
+                        inputs.self.packages.${system}
+                      );
+                    };
+                  }
+                );
               }
             )
           )
