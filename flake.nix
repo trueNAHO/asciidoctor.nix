@@ -185,36 +185,8 @@
                             {
                               inherit src;
 
-                              buildPhase = ''
-                                ${
-                                  lib.optionalString
-                                  (
-                                    builtins.elem
-                                    "asciidoctor-mathematical"
-                                    commandOptions.require or []
-                                  )
-                                  ''
-                                    export FONTCONFIG_FILE="${
-                                      pkgs.makeFontsConf {
-                                        fontDirectories = [
-                                          "${pkgs.lyx}/share/lyx/fonts"
-                                        ];
-                                      }
-                                    }"
-                                  ''
-                                }
-
-                                ${
-                                  lib.optionalString
-                                  (lastModified != null)
-                                  ''
-                                    export SOURCE_DATE_EPOCH="${
-                                      toString lastModified
-                                    }"
-                                  ''
-                                }
-
-                                ${command} ${
+                              buildPhase = let
+                                commandLineOptions =
                                   lib.cli.toGNUCommandLineShell
                                   {}
                                   (
@@ -248,8 +220,40 @@
 
                                       commandOptions
                                     ]
+                                  );
+                              in ''
+                                ${
+                                  lib.optionalString
+                                  (
+                                    builtins.elem
+                                    "asciidoctor-mathematical"
+                                    commandOptions.require or []
                                   )
-                                } ${lib.escapeShellArg inputFile}
+                                  ''
+                                    export FONTCONFIG_FILE="${
+                                      pkgs.makeFontsConf {
+                                        fontDirectories = [
+                                          "${pkgs.lyx}/share/lyx/fonts"
+                                        ];
+                                      }
+                                    }"
+                                  ''
+                                }
+
+                                ${
+                                  lib.optionalString
+                                  (lastModified != null)
+                                  ''
+                                    export SOURCE_DATE_EPOCH="${
+                                      toString lastModified
+                                    }"
+                                  ''
+                                }
+
+                                ${command} \
+                                  ${commandLineOptions} \
+                                  --attribute root="$PWD" \
+                                  ${lib.escapeShellArg inputFile}
                               '';
 
                               installPhase = ''
