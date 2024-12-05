@@ -77,6 +77,7 @@
               packages = {
                 inherit (inputs.self) lastModified;
 
+                inputFile = "pages/index.adoc";
                 name = "report";
                 src = src/report;
               };
