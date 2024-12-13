@@ -57,10 +57,7 @@
 
                       paths = lib.attrsets.attrValues (
                         lib.filterAttrs
-                        (
-                          package: _:
-                            builtins.match ".*-default" package != null
-                        )
+                        (package: _: lib.hasSuffix "-default" package)
                         inputs.self.packages.${system}
                       );
                     };
@@ -70,10 +67,7 @@
 
                       paths = lib.attrsets.attrValues (
                         lib.filterAttrs
-                        (
-                          package: _:
-                            builtins.match ".*-default-external" package != null
-                        )
+                        (package: _: lib.hasSuffix "-default-external" package)
                         inputs.self.packages.${system}
                       );
                     };
