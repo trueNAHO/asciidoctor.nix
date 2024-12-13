@@ -42,7 +42,7 @@
                       paths = lib.attrsets.attrValues (
                         lib.filterAttrs
                         (package: _: lib.hasSuffix "-default" package)
-                        inputs.self.packages.${system}
+                        self
                       );
                     };
 
@@ -52,7 +52,7 @@
                       paths = lib.attrsets.attrValues (
                         lib.filterAttrs
                         (package: _: lib.hasSuffix "-default-external" package)
-                        inputs.self.packages.${system}
+                        self
                       );
                     };
                   }
