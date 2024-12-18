@@ -201,7 +201,6 @@
                                             "ditaa-format=${format}"
                                             "mathematical-format=${format}"
                                             "plantuml-format=${format}"
-                                            "root=${src}"
                                             "source-highlighter=rouge"
                                           ]
                                           ++ (
