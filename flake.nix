@@ -221,6 +221,8 @@
                                     ]
                                   );
                               in ''
+                                runHook preBuild
+
                                 ${
                                   lib.optionalString
                                   (
@@ -253,10 +255,14 @@
                                   ${commandLineOptions} \
                                   --attribute root="$src" \
                                   ${lib.escapeShellArg inputFile}
+
+                                runHook postBuild
                               '';
 
                               installPhase = ''
+                                runHook preInstall
                                 mkdir --parents "$out" ${lib.escapeShellArg out}
+                                runHook postInstall
                               '';
 
                               name = packageName name;
