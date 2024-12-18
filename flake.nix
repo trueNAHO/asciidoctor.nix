@@ -252,8 +252,8 @@
                                 }
 
                                 ${command} \
-                                  ${commandLineOptions} \
                                   --attribute root="$src" \
+                                  ${commandLineOptions} \
                                   ${lib.escapeShellArg inputFile}
 
                                 runHook postBuild
@@ -403,11 +403,56 @@
 
                       "${prefix.hyphen}presentation-external" = presentation (
                         lib.asciidoctor.mergeAttrsMkMerge [
-                          {
-                            name = "presentation-external";
-                            outputFile = "presentation_external.html";
-                            revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
-                          }
+                          (
+                            lib.fix (
+                              self: {
+                                commandOptions.attribute = ["root=./"];
+                                name = "presentation-external";
+                                out = "${builtins.placeholder "out"}/share/doc";
+                                outputFile = "presentation_external.html";
+
+                                extraOptions = {
+                                  nativeBuildInputs = [pkgs.zip];
+
+                                  postInstall = let
+                                    out = lib.escapeShellArg self.out;
+                                  in ''
+                                    directory="$(mktemp --directory)"
+                                    mv ${out}/{.,}* "$directory"
+                                    rm --recursive "$out"
+                                    mkdir --parents "$out" ${out}
+
+                                    # TODO: Replace --update=none with
+                                    # --update=none-fail once commit
+                                    # de49e993ea8b [1] ("cp: actually support
+                                    # --update=none-fail") is available.
+                                    #
+                                    # [1]: https://github.com/coreutils/coreutils/commit/de49e993ea8b6dcdf6cada3c0f44a6371514f952
+                                    cp \
+                                      --recursive \
+                                      --update=none \
+                                      "$src/." \
+                                      "$directory"
+
+                                    output_file=${out}/${
+                                      lib.escapeShellArg prefix.underscore
+                                    }${
+                                      lib.escapeShellArg self.outputFile
+                                    }
+
+                                    cd "$directory"
+
+                                    zip \
+                                      --recurse-paths \
+                                      "''${output_file%.*}.zip" \
+                                      .
+                                  '';
+                                };
+
+                                revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                              }
+                            )
+                          )
 
                           args
                         ]
