@@ -251,7 +251,7 @@
 
                                 ${command} \
                                   ${commandLineOptions} \
-                                  --attribute root="$PWD" \
+                                  --attribute root="$src" \
                                   ${lib.escapeShellArg inputFile}
                               '';
 
