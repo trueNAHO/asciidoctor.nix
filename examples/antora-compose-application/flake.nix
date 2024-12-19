@@ -52,6 +52,7 @@
                       };
 
                     application-default-external = self.application-default;
+                    application-default-local = self.application-default;
 
                     default = pkgs.buildEnv {
                       name = "default";
@@ -69,6 +70,16 @@
                       paths = lib.attrsets.attrValues (
                         lib.filterAttrs
                         (name: _: lib.hasSuffix "-default-external" name)
+                        inputs.self.packages.${system}
+                      );
+                    };
+
+                    default-local = pkgs.buildEnv {
+                      name = "default-local";
+
+                      paths = lib.attrsets.attrValues (
+                        lib.filterAttrs
+                        (name: _: lib.hasSuffix "-default-local" name)
                         inputs.self.packages.${system}
                       );
                     };
