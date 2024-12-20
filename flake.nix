@@ -406,17 +406,26 @@
                           (
                             lib.fix (
                               self: {
-                                commandOptions.attribute = ["root=./"];
                                 name = "presentation-external";
                                 out = "${builtins.placeholder "out"}/share/doc";
                                 outputFile = "presentation_external.html";
 
-                                extraOptions = {
+                                extraOptions = let
+                                  out = lib.escapeShellArg self.out;
+
+                                  outputFile = "${out}/${
+                                    lib.escapeShellArg prefix.underscore
+                                  }${
+                                    lib.escapeShellArg self.outputFile
+                                  }";
+                                in {
                                   nativeBuildInputs = [pkgs.zip];
 
-                                  postInstall = let
-                                    out = lib.escapeShellArg self.out;
-                                  in ''
+                                  postBuild = ''
+                                    sed --in-place "s@$src@.@g" ${outputFile}
+                                  '';
+
+                                  postInstall = ''
                                     directory="$(mktemp --directory)"
                                     mv ${out}/{.,}* "$directory"
                                     rm --recursive "$out"
@@ -434,11 +443,7 @@
                                       "$src/." \
                                       "$directory"
 
-                                    output_file=${out}/${
-                                      lib.escapeShellArg prefix.underscore
-                                    }${
-                                      lib.escapeShellArg self.outputFile
-                                    }
+                                    output_file=${outputFile}
 
                                     cd "$directory"
 
