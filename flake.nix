@@ -103,15 +103,12 @@
     // inputs.flake-utils.lib.eachDefaultSystemPassThrough (
       system: let
         lib = inputs.self.mkLib pkgs.lib;
+        mkOutputs = inputs.self.mkOutputs {packages = null;};
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
-        inherit
-          (inputs.self.mkOutputs {packages = null;})
-          checks
-          devShells
-          formatter
-          ;
+        inherit (mkOutputs) devShells formatter;
 
+        checks.${system}.git-hooks = mkOutputs.checks.${system}.git-hooks;
         mkLib = lib: lib.extend (final: _: import ./lib final);
 
         mkOutputs = modifiers:
@@ -122,27 +119,32 @@
               (
                 lib.fix (
                   self: {
-                    checks.git-hooks = inputs.git-hooks.lib.${system}.run (
-                      lib.asciidoctor.mergeAttrsMkMerge [
-                        {
-                          hooks = {
-                            alejandra = {
-                              enable = true;
-                              settings.verbosity = "quiet";
-                            };
+                    checks =
+                      lib.attrsets.unionOfDisjoint
+                      {
+                        git-hooks = inputs.git-hooks.lib.${system}.run (
+                          lib.asciidoctor.mergeAttrsMkMerge [
+                            {
+                              hooks = {
+                                alejandra = {
+                                  enable = true;
+                                  settings.verbosity = "quiet";
+                                };
 
-                            deadnix.enable = true;
-                            statix.enable = true;
-                            typos.enable = true;
-                            yamllint.enable = true;
-                          };
+                                deadnix.enable = true;
+                                statix.enable = true;
+                                typos.enable = true;
+                                yamllint.enable = true;
+                              };
 
-                          src = ./.;
-                        }
+                              src = ./.;
+                            }
 
-                        modifiers.checks or {}
-                      ]
-                    );
+                            modifiers.checks or {}
+                          ]
+                        );
+                      }
+                      self.packages;
 
                     devShells.default = pkgs.mkShell (
                       lib.asciidoctor.mergeAttrsMkMerge [
