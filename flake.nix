@@ -369,7 +369,7 @@
                           {
                             command = pkgs.asciidoctor.meta.mainProgram;
                             commandOptions.require = asciidoctorRequire;
-                            name = "docbook";
+                            name = packageName "docbook";
                             outputFile = "main.xml";
                           }
 
@@ -382,7 +382,7 @@
                           {
                             command = pkgs.asciidoctor.meta.mainProgram;
                             commandOptions.require = asciidoctorRequire;
-                            name = "html";
+                            name = packageName "html";
                             outputFile = "index.html";
                           }
 
@@ -395,7 +395,7 @@
                           {
                             command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
                             commandOptions.require = asciidoctorRequire;
-                            name = "pdf";
+                            name = packageName "pdf";
                             outputFile = "main.pdf";
                           }
 
@@ -408,7 +408,7 @@
                           (
                             lib.fix (
                               self: {
-                                name = "presentation-external";
+                                name = packageName "presentation-external";
                                 out = "${builtins.placeholder "out"}/share/doc";
                                 outputFile = "presentation_external.html";
 
@@ -468,7 +468,7 @@
                       "${prefix.hyphen}presentation-local" = presentation (
                         lib.asciidoctor.mergeAttrsMkMerge [
                           {
-                            name = "presentation-local";
+                            name = packageName "presentation-local";
                             outputFile = "presentation_local.html";
                             revealJsDir = inputs.reveal-js.outPath;
                           }
