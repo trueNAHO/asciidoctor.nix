@@ -338,145 +338,176 @@
                         );
 
                       rawArgs = modifiers.packages or {};
-                    in {
-                      "${prefix.hyphen}default" = pkgs.buildEnv {
-                        name = packageName "default";
-                        paths = lib.attrsets.attrValues nonDefaultPackages;
-                      };
+                    in
+                      lib.mapAttrs'
+                      (
+                        name: value: let
+                          name' = packageName name;
+                        in
+                          lib.nameValuePair name' (value name')
+                      )
+                      {
+                        "default" = name:
+                          pkgs.buildEnv {
+                            inherit name;
+                            paths = lib.attrsets.attrValues nonDefaultPackages;
+                          };
 
-                      "${prefix.hyphen}default-external" = pkgs.buildEnv {
-                        name = packageName "default-external";
+                        "default-external" = name:
+                          pkgs.buildEnv {
+                            inherit name;
 
-                        paths = lib.attrsets.attrValues (
-                          lib.attrsets.filterAttrs
-                          (name: _: !lib.hasSuffix "-local" name)
-                          nonDefaultPackages
-                        );
-                      };
+                            paths = lib.attrsets.attrValues (
+                              lib.attrsets.filterAttrs
+                              (name: _: !lib.hasSuffix "-local" name)
+                              nonDefaultPackages
+                            );
+                          };
 
-                      "${prefix.hyphen}default-local" = pkgs.buildEnv {
-                        name = packageName "default-local";
+                        "default-local" = name:
+                          pkgs.buildEnv {
+                            inherit name;
 
-                        paths = lib.attrsets.attrValues (
-                          lib.attrsets.filterAttrs
-                          (name: _: !lib.hasSuffix "-external" name)
-                          nonDefaultPackages
-                        );
-                      };
+                            paths = lib.attrsets.attrValues (
+                              lib.attrsets.filterAttrs
+                              (name: _: !lib.hasSuffix "-external" name)
+                              nonDefaultPackages
+                            );
+                          };
 
-                      "${prefix.hyphen}docbook" = asciidoctor (
-                        lib.asciidoctor.mergeAttrsMkMerge [
-                          {
-                            command = pkgs.asciidoctor.meta.mainProgram;
-                            commandOptions.require = asciidoctorRequire;
-                            name = packageName "docbook";
-                            outputFile = "main.xml";
-                          }
+                        "docbook" = name:
+                          asciidoctor (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                inherit name;
 
-                          args
-                        ]
-                      );
-
-                      "${prefix.hyphen}html" = asciidoctor (
-                        lib.asciidoctor.mergeAttrsMkMerge [
-                          {
-                            command = pkgs.asciidoctor.meta.mainProgram;
-                            commandOptions.require = asciidoctorRequire;
-                            name = packageName "html";
-                            outputFile = "index.html";
-                          }
-
-                          args
-                        ]
-                      );
-
-                      "${prefix.hyphen}pdf" = asciidoctor (
-                        lib.asciidoctor.mergeAttrsMkMerge [
-                          {
-                            command = "${pkgs.asciidoctor.meta.mainProgram}-pdf";
-                            commandOptions.require = asciidoctorRequire;
-                            name = packageName "pdf";
-                            outputFile = "main.pdf";
-                          }
-
-                          args
-                        ]
-                      );
-
-                      "${prefix.hyphen}presentation-external" = presentation (
-                        lib.asciidoctor.mergeAttrsMkMerge [
-                          (
-                            lib.fix (
-                              self: {
-                                name = packageName "presentation-external";
-                                out = "${builtins.placeholder "out"}/share/doc";
-                                outputFile = "presentation_external.html";
-
-                                extraOptions = let
-                                  out = lib.escapeShellArg self.out;
-
-                                  outputFile = "${out}/${
-                                    lib.escapeShellArg prefix.underscore
-                                  }${
-                                    lib.escapeShellArg self.outputFile
-                                  }";
-                                in {
-                                  nativeBuildInputs = [pkgs.zip];
-
-                                  postBuild = ''
-                                    sed --in-place "s@$src@.@g" ${outputFile}
-                                  '';
-
-                                  postInstall = ''
-                                    directory="$(mktemp --directory)"
-                                    mv ${out}/{.,}* "$directory"
-                                    rm --recursive "$out"
-                                    mkdir --parents "$out" ${out}
-
-                                    # TODO: Replace --update=none with
-                                    # --update=none-fail once commit
-                                    # de49e993ea8b [1] ("cp: actually support
-                                    # --update=none-fail") is available.
-                                    #
-                                    # [1]: https://github.com/coreutils/coreutils/commit/de49e993ea8b6dcdf6cada3c0f44a6371514f952
-                                    cp \
-                                      --recursive \
-                                      --update=none \
-                                      "$src/." \
-                                      "$directory"
-
-                                    output_file=${outputFile}
-
-                                    cd "$directory"
-
-                                    zip \
-                                      --recurse-paths \
-                                      "''${output_file%.*}.zip" \
-                                      .
-                                  '';
-                                };
-
-                                revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                                command = pkgs.asciidoctor.meta.mainProgram;
+                                commandOptions.require = asciidoctorRequire;
+                                outputFile = "main.xml";
                               }
-                            )
-                          )
 
-                          args
-                        ]
-                      );
+                              args
+                            ]
+                          );
 
-                      "${prefix.hyphen}presentation-local" = presentation (
-                        lib.asciidoctor.mergeAttrsMkMerge [
-                          {
-                            name = packageName "presentation-local";
-                            outputFile = "presentation_local.html";
-                            revealJsDir = inputs.reveal-js.outPath;
-                          }
+                        "html" = name:
+                          asciidoctor (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                inherit name;
 
-                          args
-                        ]
-                      );
-                    };
+                                command = pkgs.asciidoctor.meta.mainProgram;
+                                commandOptions.require = asciidoctorRequire;
+                                outputFile = "index.html";
+                              }
+
+                              args
+                            ]
+                          );
+
+                        "pdf" = name:
+                          asciidoctor (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                inherit name;
+
+                                command = "${
+                                  pkgs.asciidoctor.meta.mainProgram
+                                }-pdf";
+
+                                commandOptions.require = asciidoctorRequire;
+                                outputFile = "main.pdf";
+                              }
+
+                              args
+                            ]
+                          );
+
+                        "presentation-external" = name:
+                          presentation (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              (
+                                lib.fix (
+                                  self: {
+                                    inherit name;
+
+                                    out = "${
+                                      builtins.placeholder "out"
+                                    }/share/doc";
+
+                                    outputFile = "presentation_external.html";
+
+                                    extraOptions = let
+                                      out = lib.escapeShellArg self.out;
+
+                                      outputFile = "${out}/${
+                                        lib.escapeShellArg prefix.underscore
+                                      }${
+                                        lib.escapeShellArg self.outputFile
+                                      }";
+                                    in {
+                                      nativeBuildInputs = [pkgs.zip];
+
+                                      postBuild = ''
+                                        sed \
+                                          --in-place \
+                                          "s@$src@.@g" \
+                                          ${outputFile}
+                                      '';
+
+                                      postInstall = ''
+                                        directory="$(mktemp --directory)"
+                                        mv ${out}/{.,}* "$directory"
+                                        rm --recursive "$out"
+                                        mkdir --parents "$out" ${out}
+
+                                        # TODO: Replace --update=none with
+                                        # --update=none-fail once commit
+                                        # de49e993ea8b [1] ("cp: actually
+                                        # support --update=none-fail") is
+                                        # available.
+                                        #
+                                        # [1]: https://github.com/coreutils/coreutils/commit/de49e993ea8b6dcdf6cada3c0f44a6371514f952
+                                        cp \
+                                          --recursive \
+                                          --update=none \
+                                          "$src/." \
+                                          "$directory"
+
+                                        output_file=${outputFile}
+
+                                        cd "$directory"
+
+                                        zip \
+                                          --recurse-paths \
+                                          "''${output_file%.*}.zip" \
+                                          .
+                                      '';
+                                    };
+
+                                    revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                                  }
+                                )
+                              )
+
+                              args
+                            ]
+                          );
+
+                        "presentation-local" = name:
+                          presentation (
+                            lib.asciidoctor.mergeAttrsMkMerge [
+                              {
+                                inherit name;
+
+                                outputFile = "presentation_local.html";
+                                revealJsDir = inputs.reveal-js.outPath;
+                              }
+
+                              args
+                            ]
+                          );
+                      };
                   }
                 )
               )
