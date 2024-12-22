@@ -346,104 +346,80 @@
                         in
                           lib.nameValuePair name' (value name')
                       )
-                      {
-                        "default" = name:
-                          pkgs.buildEnv {
-                            inherit name;
-                            paths = lib.attrsets.attrValues nonDefaultPackages;
-                          };
-
-                        "default-external" = name:
-                          pkgs.buildEnv {
-                            inherit name;
-
-                            paths = lib.attrsets.attrValues (
-                              lib.attrsets.filterAttrs
-                              (name: _: !lib.hasSuffix "-local" name)
-                              nonDefaultPackages
-                            );
-                          };
-
-                        "default-local" = name:
-                          pkgs.buildEnv {
-                            inherit name;
-
-                            paths = lib.attrsets.attrValues (
-                              lib.attrsets.filterAttrs
-                              (name: _: !lib.hasSuffix "-external" name)
-                              nonDefaultPackages
-                            );
-                          };
-
-                        "docbook" = name:
-                          asciidoctor (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
+                      (
+                        lib.asciidoctor.mergeAttrsMkMerge [
+                          {
+                            "default" = name:
+                              pkgs.buildEnv {
                                 inherit name;
 
-                                command = pkgs.asciidoctor.meta.mainProgram;
-                                commandOptions.require = asciidoctorRequire;
-                                outputFile = "main.xml";
-                              }
+                                paths =
+                                  lib.attrsets.attrValues
+                                  nonDefaultPackages;
+                              };
 
-                              args
-                            ]
-                          );
-
-                        "html" = name:
-                          asciidoctor (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
+                            "default-external" = name:
+                              pkgs.buildEnv {
                                 inherit name;
 
-                                command = pkgs.asciidoctor.meta.mainProgram;
-                                commandOptions.require = asciidoctorRequire;
-                                outputFile = "index.html";
-                              }
+                                paths = lib.attrsets.attrValues (
+                                  lib.attrsets.filterAttrs
+                                  (name: _: !lib.hasSuffix "-local" name)
+                                  nonDefaultPackages
+                                );
+                              };
 
-                              args
-                            ]
-                          );
-
-                        "pdf" = name:
-                          asciidoctor (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
+                            "default-local" = name:
+                              pkgs.buildEnv {
                                 inherit name;
 
-                                command = "${
-                                  pkgs.asciidoctor.meta.mainProgram
-                                }-pdf";
+                                paths = lib.attrsets.attrValues (
+                                  lib.attrsets.filterAttrs
+                                  (name: _: !lib.hasSuffix "-external" name)
+                                  nonDefaultPackages
+                                );
+                              };
 
-                                commandOptions.require = asciidoctorRequire;
-                                outputFile = "main.pdf";
-                              }
-
-                              args
-                            ]
-                          );
-
-                        "presentation-external" = name:
-                          presentation (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              (
-                                lib.fix (
-                                  self: {
+                            "pdf" = name:
+                              asciidoctor (
+                                lib.asciidoctor.mergeAttrsMkMerge [
+                                  {
                                     inherit name;
 
-                                    out = "${
-                                      builtins.placeholder "out"
-                                    }/share/doc";
+                                    command = "${
+                                      pkgs.asciidoctor.meta.mainProgram
+                                    }-pdf";
 
-                                    outputFile = "presentation_external.html";
+                                    commandOptions.require = asciidoctorRequire;
+                                    outputFile = "main.pdf";
+                                  }
 
+                                  args
+                                ]
+                              );
+                          }
+
+                          (
+                            lib.concatMapAttrs
+                            (
+                              name: value: {
+                                "${name}-external" = value false;
+                                "${name}-local" = value true;
+                              }
+                            )
+                            (
+                              let
+                                external = self: local:
+                                  lib.optionalAttrs (!local) {
                                     extraOptions = let
                                       out = lib.escapeShellArg self.out;
 
                                       outputFile = "${out}/${
-                                        lib.escapeShellArg prefix.underscore
+                                        lib.escapeShellArg
+                                        prefix.underscore
                                       }${
-                                        lib.escapeShellArg self.outputFile
+                                        lib.escapeShellArg
+                                        self.outputFile
                                       }";
                                     in {
                                       nativeBuildInputs = [pkgs.zip];
@@ -485,29 +461,94 @@
                                       '';
                                     };
 
-                                    revealJsDir = "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
-                                  }
-                                )
-                              )
+                                    out = "${
+                                      builtins.placeholder "out"
+                                    }/share/doc";
+                                  };
 
-                              args
-                            ]
-                          );
+                                localToString = local:
+                                  if local
+                                  then "local"
+                                  else "external";
+                              in {
+                                "docbook" = local: name:
+                                  asciidoctor (
+                                    lib.fix (
+                                      self:
+                                        lib.asciidoctor.mergeAttrsMkMerge [
+                                          {
+                                            inherit name;
 
-                        "presentation-local" = name:
-                          presentation (
-                            lib.asciidoctor.mergeAttrsMkMerge [
-                              {
-                                inherit name;
+                                            command =
+                                              pkgs.asciidoctor.meta.mainProgram;
 
-                                outputFile = "presentation_local.html";
-                                revealJsDir = inputs.reveal-js.outPath;
+                                            commandOptions.require =
+                                              asciidoctorRequire;
+
+                                            outputFile = "main_${
+                                              localToString local
+                                            }.xml";
+                                          }
+
+                                          (external self local)
+                                          args
+                                        ]
+                                    )
+                                  );
+
+                                "html" = local: name:
+                                  asciidoctor (
+                                    lib.fix (
+                                      self:
+                                        lib.asciidoctor.mergeAttrsMkMerge [
+                                          {
+                                            inherit name;
+
+                                            command =
+                                              pkgs.asciidoctor.meta.mainProgram;
+
+                                            commandOptions.require =
+                                              asciidoctorRequire;
+
+                                            outputFile = "index_${
+                                              localToString local
+                                            }.html";
+                                          }
+
+                                          (external self local)
+                                          args
+                                        ]
+                                    )
+                                  );
+
+                                "presentation" = local: name:
+                                  presentation (
+                                    lib.fix (
+                                      self:
+                                        lib.asciidoctor.mergeAttrsMkMerge [
+                                          {
+                                            inherit name;
+
+                                            outputFile = "presentation_${
+                                              localToString local
+                                            }.html";
+
+                                            revealJsDir =
+                                              if local
+                                              then inputs.reveal-js.outPath
+                                              else "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                                          }
+
+                                          (external self local)
+                                          args
+                                        ]
+                                    )
+                                  );
                               }
-
-                              args
-                            ]
-                          );
-                      };
+                            )
+                          )
+                        ]
+                      );
                   }
                 )
               )
