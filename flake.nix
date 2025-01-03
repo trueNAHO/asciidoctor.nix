@@ -34,7 +34,7 @@
         packages = {
           bundix-lock = pkgs.writeShellApplication {
             name = "bundix-lock";
-            runtimeInputs = with pkgs; [gitMinimal nix];
+            runtimeInputs = with pkgs; [bundix gitMinimal nix];
 
             text = let
               src = inputs.self;
@@ -58,7 +58,7 @@
               fi
 
               rm Gemfile.lock gemset.nix
-              nix develop --command bundix --lock
+              bundix --lock
             '';
           };
 
