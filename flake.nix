@@ -75,6 +75,10 @@
               parallel \
                 --halt now,fail=1 \
                 '
+                  set -o errexit
+                  set -o nounset
+                  set -o pipefail
+
                   flake="$(mktemp --directory)"
 
                   cleanup() {
