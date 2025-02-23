@@ -190,6 +190,26 @@
                             {
                               inherit src;
 
+                              FONTCONFIG_FILE =
+                                lib.optionalString
+                                (
+                                  builtins.elem
+                                  "asciidoctor-mathematical"
+                                  commandOptions.require or []
+                                )
+                                (
+                                  pkgs.makeFontsConf {
+                                    fontDirectories = [
+                                      "${pkgs.lyx}/share/lyx/fonts"
+                                    ];
+                                  }
+                                );
+
+                              SOURCE_DATE_EPOCH =
+                                lib.optionalString
+                                (lastModified != null)
+                                lastModified;
+
                               buildPhase = let
                                 commandLineOptions =
                                   lib.cli.toGNUCommandLineShell
@@ -227,34 +247,6 @@
                                   );
                               in ''
                                 runHook preBuild
-
-                                ${
-                                  lib.optionalString
-                                  (
-                                    builtins.elem
-                                    "asciidoctor-mathematical"
-                                    commandOptions.require or []
-                                  )
-                                  ''
-                                    export FONTCONFIG_FILE="${
-                                      pkgs.makeFontsConf {
-                                        fontDirectories = [
-                                          "${pkgs.lyx}/share/lyx/fonts"
-                                        ];
-                                      }
-                                    }"
-                                  ''
-                                }
-
-                                ${
-                                  lib.optionalString
-                                  (lastModified != null)
-                                  ''
-                                    export SOURCE_DATE_EPOCH="${
-                                      toString lastModified
-                                    }"
-                                  ''
-                                }
 
                                 ${command} \
                                   --attribute root="$src" \
