@@ -316,6 +316,7 @@
 
                               commandOptions.attribute = [
                                 "revealjsdir=${revealJsDir}"
+                                "source-highlighter=highlight.js"
                               ];
 
                               extraOptions.nativeBuildInputs =
