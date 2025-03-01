@@ -63,11 +63,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1738142207,
-        "narHash": "sha256-NGqpVVxNAHwIicXpgaVqJEJWeyqzoQJ9oc8lnK9+WC4=",
+        "lastModified": 1740560979,
+        "narHash": "sha256-Vr3Qi346M+8CjedtbyUevIGDZW8LcA1fTG0ugPY/Hic=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "9d3ae807ebd2981d593cddd0080856873139aa40",
+        "rev": "5135c59491985879812717f4c9fea69604e7f26f",
         "type": "github"
       },
       "original": {
@@ -80,11 +80,11 @@
     "reveal-js": {
       "flake": false,
       "locked": {
-        "lastModified": 1738336215,
-        "narHash": "sha256-viXPqJmjgHaXSobhBiS3nQLX2rKSa9q1yP0nxB1oQYo=",
+        "lastModified": 1740043831,
+        "narHash": "sha256-jpQGOLuVeJTCFSpPhZsPWz6XuYuMs81kDUN+mvM8Dwk=",
         "owner": "hakimel",
         "repo": "reveal.js",
-        "rev": "1b2c39a86e7b2495e62222785c231b3384b7808b",
+        "rev": "2059d388f79fd2a8d3b451141e246ab9862105d7",
         "type": "github"
       },
       "original": {
