@@ -33,7 +33,7 @@
         packages = {
           bundix-lock = pkgs.writeShellApplication {
             name = "bundix-lock";
-            runtimeInputs = with pkgs; [bundix gitMinimal nix];
+            runtimeInputs = with pkgs; [bundix coreutils diffutils gitMinimal];
 
             text = let
               src = inputs.self;
@@ -63,7 +63,7 @@
 
           check-templates = pkgs.writeShellApplication {
             name = "check-templates";
-            runtimeInputs = with pkgs; [nix parallel];
+            runtimeInputs = with pkgs; [gnused nix parallel];
 
             text = let
               directories = lib.escapeShellArgs (
