@@ -72,7 +72,11 @@
             in ''
               # shellcheck disable=SC2016
               parallel \
+                --bar \
+                --color \
+                --color-failed \
                 --halt now,fail=1 \
+                --tagstring '{}' \
                 '
                   set -o errexit
                   set -o nounset
