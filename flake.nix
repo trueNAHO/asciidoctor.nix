@@ -216,7 +216,7 @@
                             commandOptions ? {},
                             extraOptions ? {},
                             inputFile ? "main.adoc",
-                            lastModified ? null,
+                            lastModified ? outputs.self.lastModified,
                             name,
                             out ? "${builtins.placeholder "out"}/share/doc",
                             outputFile,

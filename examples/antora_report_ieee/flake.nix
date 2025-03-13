@@ -5,8 +5,6 @@
   outputs = inputs:
     inputs.asciidoctor-nix.mkOutputs inputs {
       packages = {
-        inherit (inputs.self) lastModified;
-
         commandOptions.attribute = [
           "bibtex-file=attachments/bibtex.bib"
           "bibtex-order=alphabetical"

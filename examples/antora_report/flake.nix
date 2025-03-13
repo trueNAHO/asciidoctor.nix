@@ -5,8 +5,6 @@
   outputs = inputs:
     inputs.asciidoctor-nix.mkOutputs inputs {
       packages = {
-        inherit (inputs.self) lastModified;
-
         inputFile = "pages/index.adoc";
         src = ./src;
       };

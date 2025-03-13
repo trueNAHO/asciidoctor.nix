@@ -20,9 +20,7 @@
             };
 
             packages = {
-              inherit (inputs.self) lastModified;
               inherit name;
-
               src = ./src + "/${name}";
             };
           };

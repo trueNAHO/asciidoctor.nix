@@ -50,8 +50,6 @@
               };
 
               packages = {
-                inherit (inputs.self) lastModified;
-
                 inputFile = "pages/index.adoc";
                 name = "presentation";
                 src = src/presentation;

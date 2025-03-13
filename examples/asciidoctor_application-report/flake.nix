@@ -50,8 +50,6 @@
               };
 
               packages = {
-                inherit (inputs.self) lastModified;
-
                 name = "report";
                 src = src/report;
               };
