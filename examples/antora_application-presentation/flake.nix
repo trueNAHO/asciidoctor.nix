@@ -36,36 +36,6 @@
 
                     application-default-external = self.application-default;
                     application-default-local = self.application-default;
-
-                    default = pkgs.buildEnv {
-                      name = "default";
-
-                      paths = lib.attrsets.attrValues (
-                        lib.filterAttrs
-                        (name: _: lib.hasSuffix "-default" name)
-                        inputs.self.packages.${system}
-                      );
-                    };
-
-                    default-external = pkgs.buildEnv {
-                      name = "default-external";
-
-                      paths = lib.attrsets.attrValues (
-                        lib.filterAttrs
-                        (name: _: lib.hasSuffix "-default-external" name)
-                        inputs.self.packages.${system}
-                      );
-                    };
-
-                    default-local = pkgs.buildEnv {
-                      name = "default-local";
-
-                      paths = lib.attrsets.attrValues (
-                        lib.filterAttrs
-                        (name: _: lib.hasSuffix "-default-local" name)
-                        inputs.self.packages.${system}
-                      );
-                    };
                   }
                 );
               }
@@ -73,7 +43,7 @@
           )
 
           (
-            inputs.asciidoctor-nix.mkOutputs {
+            inputs.asciidoctor-nix.mkOutputs inputs {
               checks.hooks = {
                 clang-format.enable = true;
                 clang-tidy.enable = true;
