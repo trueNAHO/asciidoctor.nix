@@ -48,7 +48,7 @@
                         '';
 
                         name = mainProgram;
-                        src = src/application;
+                        src = src/application/src;
                       };
 
                     application-default-external = self.application-default;
