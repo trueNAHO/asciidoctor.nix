@@ -39,7 +39,7 @@
                       mainProgram = "application";
                     in
                       pkgs.stdenv.mkDerivation {
-                        buildPhase = "$CC ${mainProgram}.c -o ${mainProgram}";
+                        buildPhase = "$CC main.c -o ${mainProgram}";
 
                         installPhase = ''
                           mkdir --parent $out/bin
