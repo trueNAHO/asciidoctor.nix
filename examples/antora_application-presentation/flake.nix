@@ -1,0 +1,93 @@
+{
+  description = "Antora example with application and presentation";
+
+  inputs = {
+    asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";
+    flake-utils.follows = "asciidoctor-nix/flake-utils";
+    nixpkgs.follows = "asciidoctor-nix/nixpkgs";
+  };
+
+  outputs = inputs:
+    inputs.flake-utils.lib.eachDefaultSystemPassThrough (
+      system: let
+        lib = inputs.asciidoctor-nix.mkLib pkgs.lib;
+        pkgs = inputs.nixpkgs.legacyPackages.${system};
+      in
+        lib.asciidoctor.mergeAttrsMkMerge [
+          (
+            inputs.flake-utils.lib.eachDefaultSystem (
+              _: {
+                packages = lib.fix (
+                  self: {
+                    application-default = let
+                      mainProgram = "application";
+                    in
+                      pkgs.stdenv.mkDerivation {
+                        buildPhase = "$CC main.c -o ${mainProgram}";
+
+                        installPhase = ''
+                          mkdir --parent $out/bin
+                          cp ${mainProgram} $out/bin
+                        '';
+
+                        name = mainProgram;
+                        src = src/application/src;
+                      };
+
+                    application-default-external = self.application-default;
+                    application-default-local = self.application-default;
+
+                    default = pkgs.buildEnv {
+                      name = "default";
+
+                      paths = lib.attrsets.attrValues (
+                        lib.filterAttrs
+                        (name: _: lib.hasSuffix "-default" name)
+                        inputs.self.packages.${system}
+                      );
+                    };
+
+                    default-external = pkgs.buildEnv {
+                      name = "default-external";
+
+                      paths = lib.attrsets.attrValues (
+                        lib.filterAttrs
+                        (name: _: lib.hasSuffix "-default-external" name)
+                        inputs.self.packages.${system}
+                      );
+                    };
+
+                    default-local = pkgs.buildEnv {
+                      name = "default-local";
+
+                      paths = lib.attrsets.attrValues (
+                        lib.filterAttrs
+                        (name: _: lib.hasSuffix "-default-local" name)
+                        inputs.self.packages.${system}
+                      );
+                    };
+                  }
+                );
+              }
+            )
+          )
+
+          (
+            inputs.asciidoctor-nix.mkOutputs {
+              checks.hooks = {
+                clang-format.enable = true;
+                clang-tidy.enable = true;
+              };
+
+              packages = {
+                inherit (inputs.self) lastModified;
+
+                inputFile = "pages/index.adoc";
+                name = "presentation";
+                src = src/presentation;
+              };
+            }
+          )
+        ]
+    );
+}
