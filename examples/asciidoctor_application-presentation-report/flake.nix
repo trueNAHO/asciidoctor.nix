@@ -1,5 +1,5 @@
 {
-  description = "Composable Asciidoctor Example with an Application";
+  description = "Asciidoctor example with application, presentation, and report";
 
   inputs = {
     asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";

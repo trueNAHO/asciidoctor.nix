@@ -1,5 +1,5 @@
 {
-  description = "IEEE Asciidoctor Example Based on Antora's Structure";
+  description = "IEEE Antora example with report";
   inputs.asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";
 
   outputs = inputs:

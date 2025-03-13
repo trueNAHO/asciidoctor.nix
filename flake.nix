@@ -556,7 +556,7 @@
 
         templates =
           lib.attrsets.unionOfDisjoint
-          {default = inputs.self.templates.simple;}
+          {default = inputs.self.templates.asciidoctor_report;}
           (
             builtins.mapAttrs
             (

@@ -1,5 +1,5 @@
 {
-  description = "Simple Asciidoctor Example Based on Antora's Structure with an Application";
+  description = "Asciidoctor example with application and report";
 
   inputs = {
     asciidoctor-nix.url = "github:trueNAHO/asciidoctor.nix";
@@ -82,7 +82,6 @@
               packages = {
                 inherit (inputs.self) lastModified;
 
-                inputFile = "pages/index.adoc";
                 name = "report";
                 src = src/report;
               };
