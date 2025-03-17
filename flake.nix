@@ -15,8 +15,7 @@
 
     # TODO: Remove this input once pkgs.parallel works again in GitHub CI.
     #
-    # Lock the pkgs.parallel package to the parent of commit [1] ("parallel:
-    # 20250122 -> 20250222") to avoid the following errors when running
+    # Lock the pkgs.parallel package to avoid the following errors when running
     #
     #     nix run .#check-templates
     #
@@ -29,7 +28,13 @@
     #
     # This is a nasty regression because the errors do not happen locally.
     #
-    # [1]: https://github.com/NixOS/nixpkgs/commit/fdb7b9822b82be68ef907004714039c906281d9e
+    # To find the faulty commit, Nixpkgs should be bisected between the good
+    # commit [1] ("waypipe: 0.10.1 -> 0.10.2 (#377694)") and the bad commit [2]
+    # ("parallel: 20250122 -> 20250222"). The parent of commit [2] is
+    # surprisingly not a good commit.
+    #
+    # [1]: https://github.com/NixOS/nixpkgs/commit/9d3ae807ebd2981d593cddd0080856873139aa40
+    # [2]: https://github.com/NixOS/nixpkgs/commit/fdb7b9822b82be68ef907004714039c906281d9e
     nixpkgs-parallel-20250122.url = "github:NixOS/nixpkgs/7fd9c4069ca77f69847f2487b2d0483133252a21";
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
