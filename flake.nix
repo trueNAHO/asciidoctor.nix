@@ -89,9 +89,9 @@
             name = "check-templates";
 
             runtimeInputs = [
-              inputs.nixpkgs-parallel.legacyPackages.${system}.nix
+              inputs.nixpkgs-parallel.legacyPackages.${system}.parallel
               pkgs.gnused
-              pkgs.parallel
+              pkgs.nix
             ];
 
             text = let
