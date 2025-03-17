@@ -27,11 +27,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1737465171,
-        "narHash": "sha256-R10v2hoJRLq8jcL4syVFag7nIGE7m13qO48wRIukWNg=",
+        "lastModified": 1742058297,
+        "narHash": "sha256-b4SZc6TkKw8WQQssbN5O2DaCEzmFfvSTPYHlx/SFW9Y=",
         "owner": "cachix",
         "repo": "git-hooks.nix",
-        "rev": "9364dc02281ce2d37a1f55b6e51f7c0f65a75f17",
+        "rev": "59f17850021620cd348ad2e9c0c64f4e6325ce2a",
         "type": "github"
       },
       "original": {
@@ -63,11 +63,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1738142207,
-        "narHash": "sha256-NGqpVVxNAHwIicXpgaVqJEJWeyqzoQJ9oc8lnK9+WC4=",
+        "lastModified": 1742069588,
+        "narHash": "sha256-C7jVfohcGzdZRF6DO+ybyG/sqpo1h6bZi9T56sxLy+k=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "9d3ae807ebd2981d593cddd0080856873139aa40",
+        "rev": "c80f6a7e10b39afcc1894e02ef785b1ad0b0d7e5",
         "type": "github"
       },
       "original": {
@@ -77,14 +77,30 @@
         "type": "github"
       }
     },
+    "nixpkgs-parallel": {
+      "locked": {
+        "lastModified": 1738142207,
+        "narHash": "sha256-NGqpVVxNAHwIicXpgaVqJEJWeyqzoQJ9oc8lnK9+WC4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9d3ae807ebd2981d593cddd0080856873139aa40",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9d3ae807ebd2981d593cddd0080856873139aa40",
+        "type": "github"
+      }
+    },
     "reveal-js": {
       "flake": false,
       "locked": {
-        "lastModified": 1738336215,
-        "narHash": "sha256-viXPqJmjgHaXSobhBiS3nQLX2rKSa9q1yP0nxB1oQYo=",
+        "lastModified": 1741938416,
+        "narHash": "sha256-TnurMUqp3yRr9tnPDeyC3nZ3of2GrXsp9ZgTHbejT74=",
         "owner": "hakimel",
         "repo": "reveal.js",
-        "rev": "1b2c39a86e7b2495e62222785c231b3384b7808b",
+        "rev": "36daed927e44df5eb7841f46f13e2589e69d57b7",
         "type": "github"
       },
       "original": {
@@ -98,6 +114,7 @@
         "flake-utils": "flake-utils",
         "git-hooks": "git-hooks",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-parallel": "nixpkgs-parallel",
         "reveal-js": "reveal-js"
       }
     },
