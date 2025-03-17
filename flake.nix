@@ -35,7 +35,7 @@
     #
     # [1]: https://github.com/NixOS/nixpkgs/commit/9d3ae807ebd2981d593cddd0080856873139aa40
     # [2]: https://github.com/NixOS/nixpkgs/commit/fdb7b9822b82be68ef907004714039c906281d9e
-    nixpkgs-parallel.url = "github:NixOS/nixpkgs/7fd9c4069ca77f69847f2487b2d0483133252a21";
+    nixpkgs-parallel.url = "github:NixOS/nixpkgs/9d3ae807ebd2981d593cddd0080856873139aa40";
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
