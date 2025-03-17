@@ -67,10 +67,12 @@
           check-templates = pkgs.writeShellApplication {
             name = "check-templates";
 
-            runtimeInputs = with inputs.nixpkgs-dev.legacyPackages.${system}; [
-              gnused
-              nix
-              parallel
+            runtimeInputs = let
+              pkgs-dev = inputs.nixpkgs-dev.legacyPackages.${system};
+            in [
+              pkgs-dev.gnused
+              pkgs-dev.nix
+              pkgs-dev.parallel
             ];
 
             text = let
