@@ -13,7 +13,7 @@
       url = "github:cachix/git-hooks.nix";
     };
 
-    # TODO: Remove this input once pkgs.parallel works in GitHub CI.
+    # TODO: Remove this input once pkgs.parallel works again in GitHub CI.
     #
     # Lock the pkgs.parallel package to the parent of commit [1] ("parallel:
     # 20250122 -> 20250222") to avoid the following errors when running
