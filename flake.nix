@@ -13,7 +13,25 @@
       url = "github:cachix/git-hooks.nix";
     };
 
-    nixpkgs-dev.url = "github:NixOS/nixpkgs/9d3ae807ebd2981d593cddd0080856873139aa40";
+    # TODO: Remove this input once pkgs.parallel works in GitHub CI.
+    #
+    # Lock the pkgs.parallel package to the parent of commit [1] ("parallel:
+    # 20250122 -> 20250222") to avoid the following errors when running
+    #
+    #     nix run .#check-templates
+    #
+    # in the GitHub CI:
+    #
+    #     … while updating the lock file of flake 'path:/tmp/<DIRECTORY>?lastModified=<LAST_MODIFIED>&narHash=sha256-<SHA256>'
+    #     … while updating the flake input 'asciidoctor-nix'
+    #     … while fetching the input 'path:/nix/store/<HASH>-source'
+    #     error: cannot open SQLite database '/nix/fetcher-cache-v3.sqlite': unable to open database file
+    #
+    # This is a nasty regression because the errors do not happen locally.
+    #
+    # [1]: https://github.com/NixOS/nixpkgs/commit/fdb7b9822b82be68ef907004714039c906281d9e
+    nixpkgs-parallel-20250122.url = "github:NixOS/nixpkgs/7fd9c4069ca77f69847f2487b2d0483133252a21";
+
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     reveal-js = {
@@ -31,8 +49,6 @@
         inherit (pkgs) lib;
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
-        inherit pkgs;
-
         packages = {
           bundix-lock = pkgs.writeShellApplication {
             name = "bundix-lock";
@@ -67,11 +83,9 @@
           check-templates = pkgs.writeShellApplication {
             name = "check-templates";
 
-            runtimeInputs = let
-              pkgs-dev = inputs.nixpkgs-dev.legacyPackages.${system};
-            in [
+            runtimeInputs = [
+              inputs.nixpkgs-dev.legacyPackages.${system}.nix
               pkgs.gnused
-              pkgs-dev.nix
               pkgs.parallel
             ];
 
