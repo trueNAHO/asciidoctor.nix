@@ -71,8 +71,8 @@
               pkgs-dev = inputs.nixpkgs-dev.legacyPackages.${system};
             in [
               pkgs.gnused
-              pkgs.nix
-              pkgs-dev.parallel
+              pkgs-dev.nix
+              pkgs.parallel
             ];
 
             text = let
