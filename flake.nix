@@ -71,7 +71,7 @@
               pkgs-dev = inputs.nixpkgs-dev.legacyPackages.${system};
             in [
               pkgs.gnused
-              pkgs-dev.nix
+              pkgs.nix
               pkgs-dev.parallel
             ];
 
