@@ -13,6 +13,7 @@
       url = "github:cachix/git-hooks.nix";
     };
 
+    nixpkgs-dev.url = "github:NixOS/nixpkgs/9d3ae807ebd2981d593cddd0080856873139aa40";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     reveal-js = {
@@ -65,7 +66,12 @@
 
           check-templates = pkgs.writeShellApplication {
             name = "check-templates";
-            runtimeInputs = with pkgs; [gnused nix parallel];
+
+            runtimeInputs = with inputs.nixpkgs-dev.legacyPackages.${system}; [
+              gnused
+              nix
+              parallel
+            ];
 
             text = let
               directories = lib.escapeShellArgs (
