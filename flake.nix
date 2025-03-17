@@ -30,6 +30,8 @@
         inherit (pkgs) lib;
         pkgs = inputs.nixpkgs.legacyPackages.${system};
       in {
+        inherit pkgs;
+
         packages = {
           bundix-lock = pkgs.writeShellApplication {
             name = "bundix-lock";
