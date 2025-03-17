@@ -70,7 +70,7 @@
             runtimeInputs = let
               pkgs-dev = inputs.nixpkgs-dev.legacyPackages.${system};
             in [
-              pkgs-dev.gnused
+              pkgs.gnused
               pkgs-dev.nix
               pkgs-dev.parallel
             ];
