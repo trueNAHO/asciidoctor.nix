@@ -84,7 +84,7 @@
             name = "check-templates";
 
             runtimeInputs = [
-              inputs.nixpkgs-dev.legacyPackages.${system}.nix
+              inputs.nixpkgs-parallel-20250122.legacyPackages.${system}.nix
               pkgs.gnused
               pkgs.parallel
             ];
