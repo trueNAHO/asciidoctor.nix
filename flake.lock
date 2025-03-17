@@ -77,7 +77,7 @@
         "type": "github"
       }
     },
-    "nixpkgs-parallel-20250122": {
+    "nixpkgs-parallel": {
       "locked": {
         "lastModified": 1740298586,
         "narHash": "sha256-LWdWXic/OkRun2L3npvPLTEOw4+PsL7wmEgqwvnSKL8=",
@@ -114,7 +114,7 @@
         "flake-utils": "flake-utils",
         "git-hooks": "git-hooks",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-parallel-20250122": "nixpkgs-parallel-20250122",
+        "nixpkgs-parallel": "nixpkgs-parallel",
         "reveal-js": "reveal-js"
       }
     },
