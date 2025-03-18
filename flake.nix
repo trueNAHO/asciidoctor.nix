@@ -511,7 +511,7 @@
                                             cp \
                                               --recursive \
                                               --update=none-fail \
-                                              "$src/." \
+                                              . \
                                               "$directory"
 
                                             output_file=${outputFile}
