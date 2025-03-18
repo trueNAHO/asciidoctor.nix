@@ -1,5 +1,4 @@
 = Presentation
-:sectnums:
 
 include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
 
