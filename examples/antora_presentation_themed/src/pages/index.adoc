@@ -1,0 +1,21 @@
+= asciidoctor.nix
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+1]
+
+include::{root}/partials/lorem_ipsum.adoc[leveloffset=+2]

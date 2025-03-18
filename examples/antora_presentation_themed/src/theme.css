@@ -1,0 +1,7 @@
+.reveal {
+  font-size: 1.5rem;
+}
+
+.reveal code {
+  max-height: 100% !important;
+}
