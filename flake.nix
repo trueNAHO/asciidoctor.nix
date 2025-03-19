@@ -600,7 +600,7 @@
                                                 revealJsDir =
                                                   if local
                                                   then inputs.reveal-js.outPath
-                                                  else "https://cdn.jsdelivr.net/npm/reveal.js@5.1.0";
+                                                  else "https://cdn.jsdelivr.net/npm/reveal.js@5.2.0";
                                               }
 
                                               (external self local)
