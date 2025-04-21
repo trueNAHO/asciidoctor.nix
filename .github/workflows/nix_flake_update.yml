@@ -18,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@v16
-
       - run: nix flake update
       - run: nix run .#bundix-lock
 
