@@ -18,7 +18,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@v16
       - uses: DeterminateSystems/magic-nix-cache-action@v8
 
-      - run: nix build
+      - run: nix build .#default-external
 
       - uses: softprops/action-gh-release@v2
         with:
