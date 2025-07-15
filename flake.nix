@@ -13,30 +13,6 @@
       url = "github:cachix/git-hooks.nix";
     };
 
-    # TODO: Remove this input once pkgs.parallel works again in the GitHub CI.
-    #
-    # Lock the pkgs.parallel package to avoid the following errors when running
-    #
-    #     nix run .#check-templates
-    #
-    # in the GitHub CI:
-    #
-    #     … while updating the lock file of flake 'path:/tmp/<DIRECTORY>?lastModified=<LAST_MODIFIED>&narHash=sha256-<SHA256>'
-    #     … while updating the flake input 'asciidoctor-nix'
-    #     … while fetching the input 'path:/nix/store/<HASH>-source'
-    #     error: cannot open SQLite database '/nix/fetcher-cache-v3.sqlite': unable to open database file
-    #
-    # This is a nasty regression because the errors do not happen locally.
-    #
-    # To find the faulty commit, Nixpkgs should be bisected between the good
-    # commit [1] ("waypipe: 0.10.1 -> 0.10.2 (#377694)") and the bad commit [2]
-    # ("parallel: 20250122 -> 20250222"). The parent of commit [2] is
-    # surprisingly not a good commit.
-    #
-    # [1]: https://github.com/NixOS/nixpkgs/commit/9d3ae807ebd2981d593cddd0080856873139aa40
-    # [2]: https://github.com/NixOS/nixpkgs/commit/fdb7b9822b82be68ef907004714039c906281d9e
-    nixpkgs-parallel.url = "github:NixOS/nixpkgs/9d3ae807ebd2981d593cddd0080856873139aa40";
-
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     reveal-js = {
@@ -87,12 +63,7 @@
 
           check-templates = pkgs.writeShellApplication {
             name = "check-templates";
-
-            runtimeInputs = [
-              inputs.nixpkgs-parallel.legacyPackages.${system}.parallel
-              pkgs.gnused
-              pkgs.nix
-            ];
+            runtimeInputs = with pkgs; [gnused nix parallel];
 
             text = let
               directories = lib.escapeShellArgs (
