@@ -77,6 +77,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-parallel": {
+      "locked": {
+        "lastModified": 1738142207,
+        "narHash": "sha256-NGqpVVxNAHwIicXpgaVqJEJWeyqzoQJ9oc8lnK9+WC4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9d3ae807ebd2981d593cddd0080856873139aa40",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9d3ae807ebd2981d593cddd0080856873139aa40",
+        "type": "github"
+      }
+    },
     "reveal-js": {
       "flake": false,
       "locked": {
@@ -98,6 +114,7 @@
         "flake-utils": "flake-utils",
         "git-hooks": "git-hooks",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-parallel": "nixpkgs-parallel",
         "reveal-js": "reveal-js"
       }
     },
