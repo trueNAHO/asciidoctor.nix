@@ -4,10 +4,10 @@
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "1wyxgwmnz9bw377r3lba26b090hbsq9qnbw8575a1prpy83qh82j";
+      sha256 = "1hbin3j8wynl2fpqa3d6vb932pyngyfn8j2q6gbbn1n23z7srqqn";
       type = "gem";
     };
-    version = "2.0.23";
+    version = "2.0.26";
   };
   asciidoctor-revealjs = {
     dependencies = ["asciidoctor"];
